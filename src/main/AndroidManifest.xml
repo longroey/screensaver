@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.rc.screensaver">
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.DEVICE_POWER" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <!-- M: add for power off alarm to shut down the devices @{ -->
+    <!-- <uses-permission android:name="android.permission.SHUTDOWN"/> -->
+    <!-- @} -->
+    <!-- M: For multiuser -->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_label"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:requiredForAllUsers="true"
+        android:supportsRtl="true">
+
+        <!-- Dream (screensaver) implementation -->
+        <service android:name=".Screensaver"
+            android:exported="true"
+            android:label="@string/app_label"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <action android:name="android.app.action.NEXT_ALARM_CLOCK_CHANGED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.dream"
+                android:resource="@xml/dream_info" />
+        </service>
+
+        <!-- Settings activity for screensaver -->
+        <activity android:name=".ScreensaverSettingsActivity"
+            android:label="@string/screensaver_settings"
+            android:theme="@style/ScreensaverActivityTheme"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>
