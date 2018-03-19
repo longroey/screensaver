@@ -42,8 +42,8 @@
             android:dial="@drawable/clock_analog_dial_mipmap"
             android:hand_hour="@drawable/clock_analog_hour_mipmap"
             android:hand_minute="@drawable/clock_analog_minute_mipmap"
-            dc:jewelColor="@color/clock_white"
-            dc:jewelOffset="23dp"
+            dc:jewelColor="@android:color/transparent"
+            dc:jewelOffset="48dp"
             dc:jewelRadius="5dp" />
 
         <LinearLayout
