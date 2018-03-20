@@ -12,6 +12,8 @@
     <!-- M: To make the am/pm font size suit for phone.-->
     <dimen name="main_ampm_font_size">0sp</dimen>
 
+    <dimen name="weather_image_size">132dp</dimen>
+
 
 
 </resources>

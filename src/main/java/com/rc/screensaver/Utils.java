@@ -8,6 +8,7 @@ import android.animation.TimeInterpolator;
 import android.app.AlarmManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -60,10 +61,7 @@ public class Utils {
     /** Types that may be used for clock displays. **/
     public static final String CLOCK_TYPE_DIGITAL = "digital";
     public static final String CLOCK_TYPE_ANALOG = "analog";
-    public static final String SCREENSAVER_MODE_LOCATION = "0";
-    public static final String SCREENSAVER_MODE_CONNECTION = "1";
-    public static final String SCREENSAVER_MODE_CAMERA_STATUS = "2";
-    public static final String SCREENSAVER_MODE_LOOP = "3";
+
 
 
     /***
@@ -170,36 +168,13 @@ public class Utils {
     }
 
     /**
-     * For screensavers to set whether the digital or analog clock should be displayed.
-     * Returns the view to be displayed.
-     */
-    public static View setClockStyle(Context context, View digitalClock, View analogClock,
-                                     String clockStyleKey) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        String defaultClockStyle = context.getResources().getString(R.string.default_clock_style);
-        String style = sharedPref.getString(clockStyleKey, defaultClockStyle);
-        View returnView;
-        if (style.equals(CLOCK_TYPE_ANALOG)) {
-            digitalClock.setVisibility(View.GONE);
-            analogClock.setVisibility(View.VISIBLE);
-            returnView = analogClock;
-        } else {
-            digitalClock.setVisibility(View.VISIBLE);
-            analogClock.setVisibility(View.GONE);
-            returnView = digitalClock;
-        }
-
-        return returnView;
-    }
-
-    /**
      * For screensavers to dim the lights if necessary.
      */
-    public static void dimClockView(boolean dim, View clockView) {
+    public static void dimClockView(Context context, boolean dim, View clockView) {
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setColorFilter(new PorterDuffColorFilter(
-                (dim ? 0x40FFFFFF : 0xC0FFFFFF),
+                (dim ? context.getColor(R.color.dim_clock) : context.getColor(R.color.bright_clock)),
                 PorterDuff.Mode.MULTIPLY));
         clockView.setLayerType(View.LAYER_TYPE_HARDWARE, paint);
     }
@@ -214,7 +189,11 @@ public class Utils {
         boolean display = PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(ScreensaverSettingsActivity.KEY_DISPLAY_DATA_ALARM, false);
         dateDisplay.setVisibility(display ? View.VISIBLE : View.GONE);
-        alarmDisplay.setVisibility(display ? View.VISIBLE : View.GONE);
+        if (display && !TextUtils.isEmpty(getNextAlarm(context))) {
+            alarmDisplay.setVisibility(View.VISIBLE);
+        } else {
+            alarmDisplay.setVisibility(View.GONE);
+        }
     }
 
 
@@ -223,9 +202,13 @@ public class Utils {
      * registerViews() must be called prior to posting.
      */
     public static class ScreensaverMoveSaverRunnable implements Runnable {
-        static final long MOVE_DELAY = 20 * 1000; // SCREEN_SAVER_MOVE_DELAY;
-        static final long SLIDE_TIME = 1 * 1000;
-        static final long FADE_TIME = 1 * 1000;
+        private final long MOVE_DELAY = 20 * 1000; // SCREEN_SAVER_MOVE_DELAY;
+        private final long SLIDE_TIME = 1 * 1000;
+        private final long FADE_TIME = 1 * 1000;
+        private final String SCREENSAVER_MODE_LOCATION = "0";
+        private final String SCREENSAVER_MODE_CONNECTION = "1";
+        private final String SCREENSAVER_MODE_CAMERA_STATUS = "2";
+        private final String SCREENSAVER_MODE_LOOP = "3";
 
         private View mContentView;
         private View mSaverView;
@@ -233,6 +216,7 @@ public class Utils {
         private Context mContext;
         TextView locationLabelView, connectionLabelView, cameraStatusLabelView;
         String locationLabel, connectionLabel, cameraStatusLabel;
+        private final String LAST_LOCATION_LABEL = "last_location_label";
         boolean mIsLoopMode;
         int mMode = 0;
         private static TimeInterpolator mSlowStartWithBrakes;
@@ -268,14 +252,6 @@ public class Utils {
             locationLabelView = (TextView) mSaverView.findViewById(R.id.location_label);
             connectionLabelView = (TextView) mSaverView.findViewById(R.id.connection_label);
             cameraStatusLabelView = (TextView) mSaverView.findViewById(R.id.cammera_status_label);
-            // TODO: 2018-3-15 设置对应label显示
-            locationLabelView.setText(getLocationLabel(mContext));
-            connectionLabelView.setText("Wifi:" + (isWifiOn(mContext) ? "ON" : "OFF") +
-                    " WifiAp:" + (isWifiApOn(mContext) ? "ON" : "OFF") +
-                    "\nGPS:" + (isGPSOn(mContext) ? "ON" : "OFF") +
-                    " 4G:" + (getMobileNetworkType(mContext).equals("4G") ? "ON" : "OFF"));
-            cameraStatusLabelView.setText("getCameraStatusLabel");
-            // TODO: 2018-3-15
 
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
             String defaultScreensaverMode = mContext.getResources().getString(R.string.default_screensaver_mode);
@@ -295,6 +271,15 @@ public class Utils {
             }
             Log.d(TAG, "mIsLoopMode:" + mIsLoopMode + "mMode:" + mMode);
 
+            locationLabel = sharedPref.getString(LAST_LOCATION_LABEL, "");
+            // TODO: 2018-3-15 设置对应label显示
+            locationLabelView.setText(getLocationLabel(mContext));
+            connectionLabelView.setText("Wifi:" + (isWifiOn(mContext) ? "ON" : "OFF") +
+                    " WifiAp:" + (isWifiApOn(mContext) ? "ON" : "OFF") +
+                    "\nGPS:" + (isGPSOn(mContext) ? "ON" : "OFF") +
+                    " 4G:" + (getMobileNetworkType(mContext).equals("4G") ? "ON" : "OFF"));
+            cameraStatusLabelView.setText("getCameraStatusLabel");
+            // TODO: 2018-3-15
         }
 
         private void updateScreensaverView() {
@@ -481,6 +466,9 @@ public class Utils {
             Log.d(TAG, builder.toString());
             if (!TextUtils.isEmpty(builder.toString())){
                 locationLabel = builder.toString();
+                Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
+                editor.putString(LAST_LOCATION_LABEL, locationLabel);
+                editor.commit();
             }
             return locationLabel;
         }

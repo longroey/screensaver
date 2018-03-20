@@ -6,8 +6,6 @@
     <color name="clock_gray">#B3ffffff</color>
     <color name="clock_white">#ffffff</color>
 
-
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="dim_clock" >#40FFFFFF</color>
+    <color name="bright_clock" >#C0FFFFFF</color>
 </resources>

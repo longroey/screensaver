@@ -46,28 +46,6 @@
 
 
 
-
-    <!-- Header for a Dream Setting referring to choosing analog or digital style -->
-    <string name="clock_style">Style</string>
-
-    <!-- Default clock style. -->
-    <string name="default_clock_style" translatable="false">digital</string>
-
-    <!-- Entries listed in the ListPreference when invoking the clock style
-     preference. -->
-    <string-array name="clock_style_entries">
-        <item>Analog</item>
-        <item>Digital</item>
-    </string-array>
-
-    <!-- Values that are retrieved from the ListPreference. These must match
-         the clock_style_entries above. -->
-    <string-array name="clock_style_values" translatable="false">
-        <item>analog</item>
-        <item>digital</item>
-    </string-array>
-
-
     <!-- Title for check box to pick intensity of display diminuation during dream mode -->
     <string name="night_mode_title">Night mode</string>
     <!-- Describes intensity of display diminuation during dream mode -->

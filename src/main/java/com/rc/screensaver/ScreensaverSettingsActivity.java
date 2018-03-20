@@ -10,7 +10,6 @@ public class ScreensaverSettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener {
 
     public static final String KEY_SCREENSAVER_MODE = "screensaver_mode";
-    public static final String KEY_CLOCK_STYLE = "screensaver_clock_style";
     public static final String KEY_NIGHT_MODE = "screensaver_night_mode";
     public static final String KEY_DISPLAY_DATA_ALARM = "display_data_alarm";
     public static final String KEY_SCREENSAVER_ANIMATION_STYLE = "screensaver_animation_style";
@@ -33,11 +32,6 @@ public class ScreensaverSettingsActivity extends PreferenceActivity
             final ListPreference screensaverModeListPref = (ListPreference) pref;
             final int idx = screensaverModeListPref.findIndexOfValue((String) newValue);
             screensaverModeListPref.setSummary(screensaverModeListPref.getEntries()[idx]);
-
-        } else if (KEY_CLOCK_STYLE.equals(pref.getKey())) {
-            final ListPreference clockStyleListPref = (ListPreference) pref;
-            final int idx = clockStyleListPref.findIndexOfValue((String) newValue);
-            clockStyleListPref.setSummary(clockStyleListPref.getEntries()[idx]);
         } else if (KEY_NIGHT_MODE.equals(pref.getKey())) {
             boolean nightModeState = ((CheckBoxPreference) pref).isChecked();
         } else if (KEY_DISPLAY_DATA_ALARM.equals(pref.getKey())) {
@@ -55,10 +49,6 @@ public class ScreensaverSettingsActivity extends PreferenceActivity
         ListPreference screensaverModeListPref = (ListPreference) findPreference(KEY_SCREENSAVER_MODE);
         screensaverModeListPref.setSummary(screensaverModeListPref.getEntry());
         screensaverModeListPref.setOnPreferenceChangeListener(this);
-
-        ListPreference clockStyleListPref = (ListPreference) findPreference(KEY_CLOCK_STYLE);
-        clockStyleListPref.setSummary(clockStyleListPref.getEntry());
-        clockStyleListPref.setOnPreferenceChangeListener(this);
 
         Preference nightModePref = findPreference(KEY_NIGHT_MODE);
         boolean nightModeState = ((CheckBoxPreference) nightModePref).isChecked();

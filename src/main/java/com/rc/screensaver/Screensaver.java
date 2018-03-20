@@ -24,7 +24,7 @@ public class Screensaver extends DreamService {
     private static final String TAG = "Screensaver";
 
     private View mContentView, mSaverView;
-    private View mAnalogClock, mDigitalClock;
+    private View  mDigitalClock;
     private String mDateFormat;
     private String mDateFormatForAccessibility;
 
@@ -38,9 +38,6 @@ public class Screensaver extends DreamService {
             finish();
         }
     };
-
-
-
 
     /**
      * Receiver to handle time reference changes.
@@ -76,7 +73,7 @@ public class Screensaver extends DreamService {
         if (DEBUG) Log.d(TAG, "Screensaver created");
         super.onCreate();
 
-        setTheme(R.style.DeskClockParentTheme);
+        setTheme(R.style.ScreensaverTheme);
 
         mDateFormat = getString(R.string.abbrev_wday_month_day_no_year);
         mDateFormatForAccessibility = getString(R.string.full_wday_month_day_no_year);
@@ -124,23 +121,17 @@ public class Screensaver extends DreamService {
     }
 
     private void setClockStyle() {
-        Utils.setClockStyle(this, mDigitalClock, mAnalogClock,
-                ScreensaverSettingsActivity.KEY_CLOCK_STYLE);
         mSaverView = findViewById(R.id.main_clock);
         boolean dimNightMode = PreferenceManager.getDefaultSharedPreferences(this)
                 .getBoolean(ScreensaverSettingsActivity.KEY_NIGHT_MODE, false);
-        Utils.dimClockView(dimNightMode, mSaverView);
+        Utils.dimClockView(this, dimNightMode, mSaverView);
         setScreenBright(!dimNightMode);
     }
 
     private void layoutClockSaver() {
         setContentView(R.layout.desk_clock_saver);
         mDigitalClock = findViewById(R.id.digital_clock);
-        mAnalogClock = findViewById(R.id.analog_clock);
         setClockStyle();
-
-
-
 
         Utils.setTimeFormat((TextClock)mDigitalClock,
                 (int)getResources().getDimension(R.dimen.main_ampm_font_size));
