@@ -17,9 +17,9 @@
 
     <CheckBoxPreference
         android:defaultValue="false"
-        android:key="display_data_alarm"
-        android:summary="@string/display_data_alarm_summary"
-        android:title="@string/display_data_alarm_title" />
+        android:key="display_date_alarm"
+        android:summary="@string/display_date_alarm_summary"
+        android:title="@string/display_date_alarm_title" />
 
     <ListPreference
         android:defaultValue="@string/default_animation_style"

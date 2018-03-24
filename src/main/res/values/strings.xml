@@ -52,10 +52,10 @@
     <string name="night_mode_summary">Very dim display (for dark rooms)</string>
 
 
-    <!-- Title for check box to pick intensity of display data and alarm during dream mode -->
-    <string name="display_data_alarm_title">Display data and alarm</string>
-    <!-- Describes intensity of display data and alarm during dream mode -->
-    <string name="display_data_alarm_summary">Whether to display data and alarm(if it exists) during dream mode</string>
+    <!-- Title for check box to pick intensity of display date and alarm during dream mode -->
+    <string name="display_date_alarm_title">Display date and alarm</string>
+    <!-- Describes intensity of display date and alarm during dream mode -->
+    <string name="display_date_alarm_summary">Whether to display date and alarm(if it exists) during dream mode</string>
 
 
     <!-- Header for a screensaver animation referring to choosing fade or slide style -->
@@ -83,5 +83,12 @@
     <string name="wifi_signal_strength_general">General</string>
     <string name="wifi_signal_strength_weak">Weak</string>
 
+    <string name="connection_status_label">Wifi is <xliff:g id="wifi_status">%s</xliff:g>, Hotspot is <xliff:g id="wifi_ap_status">%s</xliff:g>, GPS is <xliff:g id="gps_status">%s</xliff:g></string>
+    <string name="status_on">on</string>
+    <string name="status_off">off</string>
+    <string name="mobilenetworktype">"\nMobile Network Type is "</string>
 
+    <string name="camera_status_label">Main camera is <xliff:g id="main_cmaera_status">%s</xliff:g>\nSub camera is <xliff:g id="sub_camera_status">%s</xliff:g></string>
+    <string name="camera_status_recording">recording</string>
+    <string name="camera_status_unrecording">unrecording</string>
 </resources>

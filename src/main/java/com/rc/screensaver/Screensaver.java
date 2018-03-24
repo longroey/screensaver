@@ -72,9 +72,7 @@ public class Screensaver extends DreamService {
     public void onCreate() {
         if (DEBUG) Log.d(TAG, "Screensaver created");
         super.onCreate();
-
         setTheme(R.style.ScreensaverTheme);
-
         mDateFormat = getString(R.string.abbrev_wday_month_day_no_year);
         mDateFormatForAccessibility = getString(R.string.full_wday_month_day_no_year);
     }
@@ -91,12 +89,21 @@ public class Screensaver extends DreamService {
     @Override
     public void onAttachedToWindow() {
         if (DEBUG) Log.d(TAG, "Screensaver attached to window");
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         super.onAttachedToWindow();
 
         // We want the screen saver to exit upon user interaction.
         setInteractive(false);
 
         setFullscreen(true);
+
 
         layoutClockSaver();
 
@@ -121,7 +128,6 @@ public class Screensaver extends DreamService {
     }
 
     private void setClockStyle() {
-        mSaverView = findViewById(R.id.main_clock);
         boolean dimNightMode = PreferenceManager.getDefaultSharedPreferences(this)
                 .getBoolean(ScreensaverSettingsActivity.KEY_NIGHT_MODE, false);
         Utils.dimClockView(this, dimNightMode, mSaverView);
@@ -130,19 +136,22 @@ public class Screensaver extends DreamService {
 
     private void layoutClockSaver() {
         setContentView(R.layout.desk_clock_saver);
+        mSaverView = findViewById(R.id.main_clock);
+        mContentView = (View) mSaverView.getParent();
+
         mDigitalClock = findViewById(R.id.digital_clock);
         setClockStyle();
 
         Utils.setTimeFormat((TextClock)mDigitalClock,
                 (int)getResources().getDimension(R.dimen.main_ampm_font_size));
 
-        mContentView = (View) mSaverView.getParent();
+
         mSaverView.setAlpha(0);
 
         mMoveSaverRunnable.registerViews(mContentView, mSaverView);
 
         Utils.updateDate(mDateFormat, mDateFormatForAccessibility, mContentView);
         Utils.refreshAlarm(Screensaver.this, mContentView);
-        Utils.setDisplayDataAlarmView(Screensaver.this, mContentView);
+        Utils.setDisplayDateAlarmView(Screensaver.this, mContentView);
     }
 }

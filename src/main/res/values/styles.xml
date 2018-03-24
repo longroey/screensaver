@@ -8,16 +8,15 @@
         <item name="android:buttonStyle">?android:attr/borderlessButtonStyle</item>
     </style>
 
-    <style name="big_thin">
+    <style name="ScreensaverActivityTheme" parent="@android:style/Theme.Material" />
+
+    <style name="big_sans_serif">
         <item name="android:textSize">@dimen/big_font_size</item>
-        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="label">
         <item name="android:textSize">@dimen/label_font_size</item>
     </style>
-
-    <style name="ScreensaverActivityTheme" parent="@android:style/Theme.Material" />
-
 
 </resources>

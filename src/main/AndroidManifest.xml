@@ -4,15 +4,17 @@
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.DEVICE_POWER" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <!-- M: add for power off alarm to shut down the devices @{ -->
     <!-- <uses-permission android:name="android.permission.SHUTDOWN"/> -->
@@ -23,39 +25,52 @@
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_label"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:requiredForAllUsers="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
 
         <!-- Dream (screensaver) implementation -->
-        <service android:name=".Screensaver"
+        <service
+            android:name=".Screensaver"
             android:exported="true"
             android:label="@string/app_label"
             android:permission="android.permission.BIND_DREAM_SERVICE">
             <intent-filter>
                 <action android:name="android.service.dreams.DreamService" />
                 <action android:name="android.app.action.NEXT_ALARM_CLOCK_CHANGED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
             <meta-data
                 android:name="android.service.dream"
                 android:resource="@xml/dream_info" />
         </service>
 
         <!-- Settings activity for screensaver -->
-        <activity android:name=".ScreensaverSettingsActivity"
-            android:label="@string/screensaver_settings"
-            android:theme="@style/ScreensaverActivityTheme"
-            android:taskAffinity=""
+        <activity
+            android:name=".ScreensaverSettingsActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            >
+            android:label="@string/screensaver_settings"
+            android:taskAffinity=""
+            android:theme="@style/ScreensaverActivityTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <receiver
+            android:name=".Utils$ScreensaverReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.didi.recorder.action.SYNC_WEATHER" />
+                <action android:name="com.didi.recorder.action.SYNC_RECORDING_STATUS" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

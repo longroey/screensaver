@@ -1,31 +1,29 @@
 package com.rc.screensaver;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.app.AlarmManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
-import android.location.Address;
-import android.location.Criteria;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -41,15 +39,18 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.TextClock;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -58,11 +59,6 @@ import java.util.Locale;
 
 public class Utils {
     private static String TAG = "Utils";
-    /** Types that may be used for clock displays. **/
-    public static final String CLOCK_TYPE_DIGITAL = "digital";
-    public static final String CLOCK_TYPE_ANALOG = "analog";
-
-
 
     /***
      * Formats the time in the TextClock according to the Locale with a special
@@ -113,11 +109,8 @@ public class Utils {
         return DateFormat.getBestDateTimePattern(Locale.getDefault(), skeleton);
     }
 
-
     /** Clock views can call this to refresh their date. **/
-    public static void updateDate(
-            String dateFormat, String dateFormatForAccessibility, View clock) {
-
+    public static void updateDate(String dateFormat, String dateFormatForAccessibility, View clock) {
         Date now = new Date();
         TextView dateDisplay;
         dateDisplay = (TextView) clock.findViewById(R.id.date);
@@ -174,20 +167,20 @@ public class Utils {
         Paint paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setColorFilter(new PorterDuffColorFilter(
-                (dim ? context.getColor(R.color.dim_clock) : context.getColor(R.color.bright_clock)),
+                (dim ? context.getResources().getColor(R.color.dim_clock) : context.getResources().getColor(R.color.bright_clock)),
                 PorterDuff.Mode.MULTIPLY));
         clockView.setLayerType(View.LAYER_TYPE_HARDWARE, paint);
     }
 
     /**
-     * For screensavers whether to display data and alarm.
+     * For screensavers whether to display date and alarm.
      */
-    public static void setDisplayDataAlarmView(Context context, View clock) {
+    public static void setDisplayDateAlarmView(Context context, View clock) {
         TextView dateDisplay, alarmDisplay;
         dateDisplay = (TextView) clock.findViewById(R.id.date);
         alarmDisplay = (TextView) clock.findViewById(R.id.next_alarm);
         boolean display = PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(ScreensaverSettingsActivity.KEY_DISPLAY_DATA_ALARM, false);
+                .getBoolean(ScreensaverSettingsActivity.KEY_DISPLAY_DATE_ALARM, false);
         dateDisplay.setVisibility(display ? View.VISIBLE : View.GONE);
         if (display && !TextUtils.isEmpty(getNextAlarm(context))) {
             alarmDisplay.setVisibility(View.VISIBLE);
@@ -196,13 +189,12 @@ public class Utils {
         }
     }
 
-
     /**
      * Runnable for use with screensaver and dream, to move the clock every minute.
      * registerViews() must be called prior to posting.
      */
     public static class ScreensaverMoveSaverRunnable implements Runnable {
-        private final long MOVE_DELAY = 20 * 1000; // SCREEN_SAVER_MOVE_DELAY;
+        private final long MOVE_DELAY = 10 * 1000; // SCREEN_SAVER_MOVE_DELAY;
         private final long SLIDE_TIME = 1 * 1000;
         private final long FADE_TIME = 1 * 1000;
         private final String SCREENSAVER_MODE_LOCATION = "0";
@@ -212,11 +204,16 @@ public class Utils {
 
         private View mContentView;
         private View mSaverView;
+        TextView locationLabelView, connectionLabelView, cameraStatusLabelView;
+        ImageView weatherImg;
         private final Handler mHandler;
         private Context mContext;
-        TextView locationLabelView, connectionLabelView, cameraStatusLabelView;
         String locationLabel, connectionLabel, cameraStatusLabel;
-        private final String LAST_LOCATION_LABEL = "last_location_label";
+        private static final String SCREENSAVER_IMAGE_URL = "screensaver_image_url";
+        private static final String SCREENSAVER_LOCATION_LABEL = "screensaver_location_label";
+        private static final String MAIN_CAMERA_STATUS = "main_camera_status";
+        private static final String SUB_CAMERA_STATUS = "sub_camera_status";
+
         boolean mIsLoopMode;
         int mMode = 0;
         private static TimeInterpolator mSlowStartWithBrakes;
@@ -249,37 +246,30 @@ public class Utils {
             mContentView = contentView;
             mSaverView = saverView;
 
-            locationLabelView = (TextView) mSaverView.findViewById(R.id.location_label);
-            connectionLabelView = (TextView) mSaverView.findViewById(R.id.connection_label);
-            cameraStatusLabelView = (TextView) mSaverView.findViewById(R.id.cammera_status_label);
-
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
             String defaultScreensaverMode = mContext.getResources().getString(R.string.default_screensaver_mode);
-            String style = sharedPref.getString(ScreensaverSettingsActivity.KEY_SCREENSAVER_MODE, defaultScreensaverMode);
-            Log.d(TAG, "style:" + style);
-            if (style.equals(SCREENSAVER_MODE_LOOP)) {
+            String mode = sharedPref.getString(ScreensaverSettingsActivity.KEY_SCREENSAVER_MODE, defaultScreensaverMode);
+            Log.d(TAG, "mode:" + mode);
+            if (mode.equals(SCREENSAVER_MODE_LOOP)) {
                 mIsLoopMode = true;
             } else {
                 mIsLoopMode = false;
-                if (style.equals(SCREENSAVER_MODE_LOCATION)) {
+                if (mode.equals(SCREENSAVER_MODE_LOCATION)) {
                     mMode = 0;
-                } else if (style.equals(SCREENSAVER_MODE_CONNECTION)) {
+                } else if (mode.equals(SCREENSAVER_MODE_CONNECTION)) {
                     mMode = 1;
-                } else if (style.equals(SCREENSAVER_MODE_CAMERA_STATUS)) {
+                } else if (mode.equals(SCREENSAVER_MODE_CAMERA_STATUS)) {
                     mMode = 2;
                 }
             }
             Log.d(TAG, "mIsLoopMode:" + mIsLoopMode + "mMode:" + mMode);
 
-            locationLabel = sharedPref.getString(LAST_LOCATION_LABEL, "");
-            // TODO: 2018-3-15 设置对应label显示
-            locationLabelView.setText(getLocationLabel(mContext));
-            connectionLabelView.setText("Wifi:" + (isWifiOn(mContext) ? "ON" : "OFF") +
-                    " WifiAp:" + (isWifiApOn(mContext) ? "ON" : "OFF") +
-                    "\nGPS:" + (isGPSOn(mContext) ? "ON" : "OFF") +
-                    " 4G:" + (getMobileNetworkType(mContext).equals("4G") ? "ON" : "OFF"));
-            cameraStatusLabelView.setText("getCameraStatusLabel");
-            // TODO: 2018-3-15
+            weatherImg = (ImageView) mSaverView.findViewById(R.id.weather_image);
+            locationLabelView = (TextView) mSaverView.findViewById(R.id.location_label);
+            connectionLabelView = (TextView) mSaverView.findViewById(R.id.connection_label);
+            cameraStatusLabelView = (TextView) mSaverView.findViewById(R.id.cammera_status_label);
+
+            updateScreensaverView();
         }
 
         private void updateScreensaverView() {
@@ -287,12 +277,39 @@ public class Utils {
             connectionLabelView.setVisibility(View.GONE);
             cameraStatusLabelView.setVisibility(View.GONE);
             // TODO: 2018-3-15 设置对应label显示
-            locationLabelView.setText(getLocationLabel(mContext));
-            connectionLabelView.setText("Wifi:" + (isWifiOn(mContext) ? "ON" : "OFF") +
-                    " WifiAp:" + (isWifiApOn(mContext) ? "ON" : "OFF") +
-                    "\nGPS:" + (isGPSOn(mContext) ? "ON" : "OFF") +
-                    " 4G:" + (getMobileNetworkType(mContext).equals("4G") ? "ON" : "OFF"));
-            cameraStatusLabelView.setText("getCameraStatusLabel");
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+            String imgUrl = sharedPref.getString(SCREENSAVER_IMAGE_URL, "");
+            if (!TextUtils.isEmpty(imgUrl)) {
+                new WeatherImgAsyncTask().execute(imgUrl);
+            }
+
+            String address = sharedPref.getString(SCREENSAVER_LOCATION_LABEL, "");
+            locationLabelView.setText(address);
+
+            connectionLabelView.setText(getConnectionStatusLabel());
+
+            int mainCameraStatus = sharedPref.getInt(MAIN_CAMERA_STATUS, 0);
+            int subCameraStatus = sharedPref.getInt(SUB_CAMERA_STATUS, 0);
+            Drawable mainCameraDrawable = null;
+            Drawable subCameraDrawable = null;
+
+            if (mainCameraStatus == 0) {
+                mainCameraDrawable = null;
+            } else if (mainCameraStatus == 1) {
+                mainCameraDrawable = mContext.getResources().getDrawable(R.drawable.main_camera);
+            } else if (mainCameraStatus == 2) {
+                // the status is reserve
+            }
+
+            if (subCameraStatus == 0) {
+                subCameraDrawable = null;
+            } else if (subCameraStatus == 1) {
+                subCameraDrawable = mContext.getResources().getDrawable(R.drawable.sub_camera);
+            } else if (subCameraStatus == 2) {
+                // the status is reserve
+            }
+            cameraStatusLabelView.setCompoundDrawablesWithIntrinsicBounds(mainCameraDrawable, null, subCameraDrawable, null);
+            cameraStatusLabelView.setText(getCameraStatusLabel(mainCameraStatus, subCameraStatus));
             // TODO: 2018-3-15
 
             if (mIsLoopMode) {
@@ -323,6 +340,9 @@ public class Utils {
 
             final float xrange = mContentView.getWidth() - mSaverView.getWidth();
             final float yrange = mContentView.getHeight() - mSaverView.getHeight();
+            Log.d(TAG, "mContentView Width:" + mContentView.getWidth() + " mContentView Height:" + mContentView.getHeight()
+                    + "\nmSaverView Width:" + mSaverView.getWidth() + " mSaverView Height:" + mSaverView.getHeight()
+                    + "\nxrange:" + xrange + " yrange:" + yrange);
 
             if (xrange == 0 && yrange == 0) {
                 delay = 500; // back in a split second
@@ -375,7 +395,6 @@ public class Utils {
                     } else {
                         s.play(xMove).with(yMove);
                         s.setDuration(SLIDE_TIME);
-
                         s.play(shrink.setDuration(SLIDE_TIME / 2));
                         s.play(grow.setDuration(SLIDE_TIME / 2)).after(shrink);
                         s.setInterpolator(mSlowStartWithBrakes);
@@ -389,94 +408,56 @@ public class Utils {
             mHandler.postDelayed(this, delay);
         }
 
+        private class WeatherImgAsyncTask extends AsyncTask<String, Void, Bitmap> {
 
-        private String getLocationLabel(Context context) {
-            StringBuilder builder = new StringBuilder();
-            Location location = null;
-            LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-            Criteria criteria = new Criteria();//Criteria类是设置定位的标准
-            criteria.setPowerRequirement(Criteria.POWER_LOW);//设置低耗电
-            criteria.setAltitudeRequired(false);//设置需要海拔
-            criteria.setBearingAccuracy(Criteria.ACCURACY_COARSE);//设置COARSE精度标准
-            criteria.setAccuracy(Criteria.ACCURACY_MEDIUM);//设置精度
-
-            String provider = locationManager.getBestProvider(criteria, true);
-            if (TextUtils.isEmpty(provider)) {
-                //如果找不到最适合的定位，使用network, GPS定位
-                List<String> prodiverlist = locationManager.getProviders(true);
-                if (prodiverlist.contains(LocationManager.NETWORK_PROVIDER)) {
-                    provider = LocationManager.NETWORK_PROVIDER;
-                } else if (prodiverlist.contains(LocationManager.GPS_PROVIDER)) {
-                    provider = LocationManager.GPS_PROVIDER;
-                }
-            }
-            //高版本的权限检查
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                        && context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: permission denied, so to do something.
-                }
-            }
-            //获取最适合的定位方式的最后的定位权限
-            Log.d(TAG, "provider is:" + provider);
-            location = locationManager.getLastKnownLocation(provider);
-
-            if (location != null) {
-                // 设置不同经纬度测试
-                //location.setLatitude(34.756292000);
-                //location.setLongitude(107.028605000 );
-                Log.d(TAG, "纬度：" + location.getLatitude() + "\n经度：" + location.getLongitude());
+            @Override
+            protected Bitmap doInBackground(String... strings) {
+                String imgUrl = strings[0];
+                Bitmap bitmap = null;
                 try {
-                    List<Address> addresses = new Geocoder(context).getFromLocation(
-                            location.getLatitude(), location.getLongitude(),
-                            3);
-                    if (addresses.size() > 0) {
-                        //取其中的一组地址 @ {
-                        Address address = addresses.get(0);
-                        //打印该组第一个地址
-                        Log.d(TAG, "address" + address.getAddressLine(0));
-
-                        if (address.getAdminArea() != null) {
-                            builder.append(address.getAdminArea()).append(" ");//省
-                            if (address.getLocality() != null) {
-                                builder.append(address.getLocality()).append(" ");//市
-                                if (address.getSubLocality() != null) {
-                                    builder.append(address.getSubLocality()).append(" ");//区、县
-                                /* if (address.getThoroughfare() != null) {
-                                    builder.append(address.getThoroughfare()).append(" ");//路、街道
-                                }*/
-                                }
-                            }
-                        }
-                        //取其中的一组地址 @ }
-                    /* 遍历所有地址组 @ {
-                    for (Address address : addresses) {
-                        for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                            builder.append(address.getAddressLine(i)).append("\n");
-                        }
-                    }
-                    //遍历所有地址组 @ } */
-                    }
-                } catch (Exception e) {
+                    URL url = new URL(imgUrl);
+                    InputStream in = url.openStream();
+                    bitmap = BitmapFactory.decodeStream(in);
+                    in.close();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } else {
-                Log.d(TAG, "location is null");
+                return bitmap;
             }
-            Log.d(TAG, builder.toString());
-            if (!TextUtils.isEmpty(builder.toString())){
-                locationLabel = builder.toString();
-                Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-                editor.putString(LAST_LOCATION_LABEL, locationLabel);
-                editor.commit();
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                weatherImg.setImageBitmap(bitmap);
             }
-            return locationLabel;
         }
+
+        private String getConnectionStatusLabel() {
+            String connectionStatus = mContext.getString(R.string.connection_status_label,
+                    isWifiOn(mContext) ? mContext.getString(R.string.status_on) : mContext.getString(R.string.status_off),
+                    isWifiApOn(mContext) ?  mContext.getString(R.string.status_on) : mContext.getString(R.string.status_off),
+                    isGPSOn(mContext) ?  mContext.getString(R.string.status_on) : mContext.getString(R.string.status_off));
+            if (!getMobileNetworkType(mContext).equals("MOBILE_NETWORK_TYPE_UNKNOWN")) {
+                connectionStatus = connectionStatus + mContext.getString(R.string.mobilenetworktype) + getMobileNetworkType(mContext);
+            }
+            return connectionStatus;
+        }
+
+        private String getCameraStatusLabel(int mainCameraStatus, int subCameraStatus) {
+            return mContext.getString(R.string.camera_status_label,
+                    mainCameraStatus == 1 ? mContext.getString(R.string.camera_status_recording) : mContext.getString(R.string.camera_status_unrecording),
+                    subCameraStatus == 1 ? mContext.getString(R.string.camera_status_recording) : mContext.getString(R.string.camera_status_unrecording));
+        }
+
     }
 
-
     public static boolean isGPSOn(Context context) {
-        return Settings.Secure.isLocationProviderEnabled(context.getContentResolver(), LocationManager.GPS_PROVIDER);
+        int locationMode = Settings.Secure.LOCATION_MODE_OFF;
+        try {
+            locationMode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+        return locationMode != Settings.Secure.LOCATION_MODE_OFF;
     }
 
     public static boolean isWifiOn(Context context) {
@@ -558,7 +539,8 @@ public class Utils {
                 case TelephonyManager.NETWORK_TYPE_EVDO_B: // 12
                 case TelephonyManager.NETWORK_TYPE_EHRPD:  // 14
                 case TelephonyManager.NETWORK_TYPE_HSPAP:  // 15
-                case TelephonyManager.NETWORK_TYPE_TD_SCDMA: // 17
+                    //Current SDK not supported  TD-SCDMA networkType is 17
+                    //case TelephonyManager.NETWORK_TYPE_TD_SCDMA: // 17
                     mobileNetworkType = "3G";
                     break;
                 case TelephonyManager.NETWORK_TYPE_LTE:    // 13
@@ -585,7 +567,7 @@ public class Utils {
                 String subTypeName = networkInfo.getSubtypeName();
                 Log.d(TAG, "Network getSubtypeName : " + subTypeName);
                 int networkTypeID = networkInfo.getSubtype();
-                Log.d(TAG, "Network getSubtype : " + Integer.valueOf(networkTypeID).toString());
+                Log.d(TAG, "Network getSubtype : " + networkTypeID);
                 switch (networkTypeID) {
                     case TelephonyManager.NETWORK_TYPE_GPRS: // 1
                     case TelephonyManager.NETWORK_TYPE_EDGE: // 2
@@ -604,7 +586,8 @@ public class Utils {
                     case TelephonyManager.NETWORK_TYPE_EVDO_B: // 12
                     case TelephonyManager.NETWORK_TYPE_EHRPD:  // 14
                     case TelephonyManager.NETWORK_TYPE_HSPAP:  // 15
-                    case TelephonyManager.NETWORK_TYPE_TD_SCDMA: // 17
+                        //Current SDK not supported  TD-SCDMA networkType is 17
+                        //case TelephonyManager.NETWORK_TYPE_TD_SCDMA: // 17
                         networkType = "3G";
                         break;
                     case TelephonyManager.NETWORK_TYPE_LTE:    //13
@@ -612,8 +595,16 @@ public class Utils {
                         networkType = "4G";
                         break;
                     case TelephonyManager.NETWORK_TYPE_UNKNOWN: // 0
-                    default:
                         networkType = "NETWORK_TYPE_UNKNOWN";
+                        break;
+                    default:
+                        if (subTypeName.equalsIgnoreCase("TD-SCDMA")
+                                || subTypeName.equalsIgnoreCase("WCDMA")
+                                || subTypeName.equalsIgnoreCase("CDMA2000")) {
+                            networkType = "3G";
+                        } else {
+                            networkType = "NETWORK_TYPE_UNKNOWN";
+                        }
                         break;
                 }
             }
@@ -622,103 +613,42 @@ public class Utils {
         return networkType;
     }
 
+    public static class ScreensaverReceiver extends BroadcastReceiver {
+        private String imgUrl, address;
+        private int mainCameraStatus, subCameraStatus;
 
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            Log.v(TAG, "ScreensaverReceiver onReceive, action: " + action);
 
-
-
-
-    protected static String getLocationAddress(Context context) {
-        //String address = "";
-        StringBuilder builder = new StringBuilder();
-        String provider = null;
-        Location location = null;
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        List<String> prodiverlist = locationManager.getProviders(true);
-        if (prodiverlist.contains(LocationManager.NETWORK_PROVIDER)) {
-            provider = LocationManager.NETWORK_PROVIDER;
-        } else if (prodiverlist.contains(LocationManager.GPS_PROVIDER)) {
-            provider = LocationManager.GPS_PROVIDER;
-        }
-        Log.d(TAG, "is provider null:" + (provider == null));
-        if (provider != null) {
-            if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    Activity#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for Activity#requestPermissions for more details.
-                return "";
+            if (action == null) {
+                return;
             }
-            location = locationManager.getLastKnownLocation(provider);
-        }
-        Log.d(TAG, "is location null:" + (location == null));
-        if (location != null) {
+            Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 
-            builder.append("纬度：").append(location.getLatitude()).append("\n");
-            builder.append("经度：").append(location.getLongitude()).append("\n");
-            Log.d(TAG,builder.toString());
-            try {
-                List<Address> addresses = new Geocoder(context).getFromLocation(
-                        location.getLatitude(), location.getLongitude(),
-                        3);
-                if (addresses.size() > 0) {
-                    Address address = addresses.get(0);
-                    // for (Address address : addresses) {
-                    for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                        builder.append(address.getAddressLine(i)).append("\n");
-                        // builder.append(address.getLocality()).append("\n");
-                        // builder.append(address.getPostalCode()).append("\n");
-                        // builder.append(address.getCountryName());
-                    }
-                    // }
+            if (action.equals("com.didi.recorder.action.SYNC_WEATHER")) {
+                imgUrl = intent.getStringExtra("imgUrl");
+                address = intent.getStringExtra("address");
+                Log.d(TAG, "imgUrl:" + imgUrl + "\naddress" + address);
+                if (!TextUtils.isEmpty(imgUrl)){
+                    editor.putString(ScreensaverMoveSaverRunnable.SCREENSAVER_IMAGE_URL, imgUrl);
                 }
-            }catch (Exception e) {
-                e.printStackTrace();
+                if (!TextUtils.isEmpty(address)){
+                    editor.putString(ScreensaverMoveSaverRunnable.SCREENSAVER_LOCATION_LABEL, address);
+                }
             }
 
-
-            //String url = "http://api.map.baidu.com/geocoder/v2/?ak=pPGNKs75nVZPloDFuppTLFO3WXebPgXg&callback=renderReverse&location="+latitude+","+longitude+"&output=json&pois=0";
-            //new MyAsyncTask(url).execute();
-        }
-        return builder.toString();
-
-
-    }
-
-    /*class MyAsyncTask extends AsyncTask<Void,Void,Void> {
-        String url = null;//要请求的网址
-        String str = null;//服务器返回的数据
-        String address = null;
-        public MyAsyncTask(String url){
-            this.url = url;
-        }
-        @Override
-        protected Void doInBackground(Void... params) {
-            str = GetHttpConnectionData.getData(url);
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            try {
-                str = str.replace("renderReverse&&renderReverse","");
-                str = str.replace("(","");
-                str = str.replace(")","");
-                JSONObject jsonObject = new JSONObject(str);
-                JSONObject address = jsonObject.getJSONObject("result");
-                String city = address.getString("formatted_address");
-                String district = address.getString("sematic_description");
-                tv_show.setText("当前位置："+city+district);
-            } catch (JSONException e) {
-                e.printStackTrace();
+            if (action.equals("com.didi.recorder.action.SYNC_RECORDING_STATUS")) {
+                mainCameraStatus = intent.getExtras().getInt("KEY_CAMERA_0");
+                subCameraStatus = intent.getExtras().getInt("KEY_CAMERA_1");
+                Log.d(TAG, "mainCameraStatus:" + mainCameraStatus + " subCameraStatus" + subCameraStatus);
+                editor.putInt(ScreensaverMoveSaverRunnable.MAIN_CAMERA_STATUS, mainCameraStatus);
+                editor.putInt(ScreensaverMoveSaverRunnable.SUB_CAMERA_STATUS, subCameraStatus);
             }
-            super.onPostExecute(aVoid);
+
+            editor.commit();
         }
     }
-    */
-
-
-
 
 }

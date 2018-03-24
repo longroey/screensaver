@@ -27,15 +27,16 @@
                 android:id="@+id/weather_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="@dimen/weather_image_margin"
+                android:layout_gravity="center_horizontal|bottom"
                 android:adjustViewBounds="true"
                 android:maxHeight="@dimen/weather_image_size"
                 android:maxWidth="@dimen/weather_image_size"
-                android:scaleType="fitCenter"
-                android:src="@drawable/weather_cloudy" />
+                android:scaleType="fitCenter"/>
 
             <TextClock
                 android:id="@+id/digital_clock"
-                style="@style/big_thin"
+                style="@style/big_sans_serif"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -92,7 +93,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="@color/white"
-                android:visibility="gone" />
+                android:visibility="invisible" />
 
             <TextView
                 android:id="@+id/connection_label"
@@ -101,16 +102,18 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textColor="@color/white"
-                android:visibility="gone" />
+                android:visibility="invisible" />
 
             <TextView
                 android:id="@+id/cammera_status_label"
                 style="@style/label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/main_camera"
+                android:drawableRight="@drawable/sub_camera"
                 android:gravity="center"
                 android:textColor="@color/white"
-                android:visibility="gone" />
+                android:visibility="invisible" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

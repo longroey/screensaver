@@ -1,0 +1,56 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">屏保</string>
+    <!-- Label for the screen saver activity displayed on-screen when that activity must be represented to the user. -->
+    <string name="screensaver_settings">屏保</string>
+
+    <!-- Header for a Screensaver Setting referring to choosing screensaver mode. -->
+    <string name="screensaver_mode">模式</string>
+
+    <!-- Entries listed in the ListPreference when invoking the screensaver mode preference. -->
+    <string-array name="screensaver_mode_entries">
+        <item>时间, 天气, 位置</item>
+        <item>时间, 天气, 连接状态(WIFI, 热点, GPS)</item>
+        <item>时间, 天气, 摄像头状态</item>
+        <item>循环</item>
+    </string-array>
+
+    <!-- Description of field showing the next alarm time in the clock page, for accessibility. -->
+    <string name="next_alarm_description">闹钟: <xliff:g id="alarm_time" example="周三 上午8:00">%s</xliff:g></string>
+
+    <!-- Title for check box to pick intensity of display diminuation during dream mode -->
+    <string name="night_mode_title">夜间模式</string>
+    <!-- Describes intensity of display diminuation during dream mode -->
+    <string name="night_mode_summary">低亮度显示(在黑暗的房间)</string>
+
+
+    <!-- Title for check box to pick intensity of display date and alarm during dream mode -->
+    <string name="display_date_alarm_title">显示日期和闹钟</string>
+    <!-- Describes intensity of display date and alarm during dream mode -->
+    <string name="display_date_alarm_summary">是否在屏保模式下显示日期和闹钟(如果存在)</string>
+
+
+    <!-- Header for a screensaver animation referring to choosing fade or slide style -->
+    <string name="animation_style">动画风格</string>
+
+
+    <!-- Entries listed in the ListPreference when invoking the animation style
+     preference. -->
+    <string-array name="animation_style_entries">
+        <item>淡化</item>
+        <item>移动</item>
+    </string-array>
+
+    <!-- WiFi_signal strength -->
+    <string name="wifi_signal_strength_strong">强</string>
+    <string name="wifi_signal_strength_general">一般</string>
+    <string name="wifi_signal_strength_weak">弱</string>
+
+    <string name="connection_status_label">Wifi<xliff:g id="wifi_status">%s</xliff:g>, 热点<xliff:g id="wifi_ap_status">%s</xliff:g>, GPS<xliff:g id="gps_status">%s</xliff:g></string>
+    <string name="status_on">开启</string>
+    <string name="status_off">关闭</string>
+    <string name="mobilenetworktype">"网络类型"</string>
+
+    <string name="camera_status_label">前摄像头<xliff:g id="main_cmaera_status">%s</xliff:g>\n后摄像头<xliff:g id="sub_camera_status">%s</xliff:g></string>
+    <string name="camera_status_recording">录制中</string>
+    <string name="camera_status_unrecording">未录制</string>
+</resources>
