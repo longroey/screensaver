@@ -10,16 +10,17 @@ import android.telephony.TelephonyManager;
 import android.telephony.PhoneStateListener;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextClock;
 
 import com.rc.screensaver.Utils.GpsStatusListener;
 import com.rc.screensaver.Utils.MobilePhoneStateListener;
 import com.rc.screensaver.Utils.ScreensaverMoveSaverRunnable;
 
+import static com.rc.screensaver.Utils.DEBUG;
+
 
 public class Screensaver extends DreamService {
     private static final String TAG = "Screensaver";
-    private static final boolean DEBUG = true;
+
 
     public static final int DEFAULT_SCREENSAVER_TIMEOUT =  Integer.MAX_VALUE;// 5 * 60 * 1000;
     public static final int ORIENTATION_CHANGE_DELAY_MS = 200;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="screensaver_view_width">480dp</dimen>
-    <dimen name="screensaver_view_height">240dp</dimen>
+    <dimen name="screensaver_view_width">400dp</dimen>
+    <dimen name="screensaver_view_height">220dp</dimen>
     <dimen name="screensaver_margin">16dp</dimen>
     <dimen name="clock_margin_bottom">-12dp</dimen>
     <dimen name="clock_text_size">136sp</dimen>

@@ -62,6 +62,7 @@ import java.util.Locale;
 
 public class Utils {
     private static String TAG = "Utils";
+    public static final boolean DEBUG = true;
 
     public static void setTimeFormat(TextClock clock, int amPmFontSize) {
         if (clock != null) {
@@ -142,12 +143,9 @@ public class Utils {
         int mMode = 1;
         private static TimeInterpolator mSlowStartWithBrakes;
 
-
         public ScreensaverMoveSaverRunnable(Context context, Handler handler) {
             mContext = context;
             mHandler = handler;
-
-
 
             mSlowStartWithBrakes = new TimeInterpolator() {
                 @Override
@@ -179,7 +177,7 @@ public class Utils {
             mSharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
             String defaultScreensaverMode = mContext.getResources().getString(R.string.default_screensaver_mode);
             String mode = mSharedPref.getString(ScreensaverSettingsActivity.KEY_SCREENSAVER_MODE, defaultScreensaverMode);
-            Log.d(TAG, "mode:" + mode);
+            if (DEBUG) Log.d(TAG, "mode:" + mode);
             if (mode.equals(SCREENSAVER_MODE_LOOP)) {
                 mIsLoopMode = true;
             } else {
@@ -194,7 +192,7 @@ public class Utils {
                     mMode = 2;
                 }
             }
-            Log.d(TAG, "mIsLoopMode:" + mIsLoopMode + "mMode:" + mMode);
+            if (DEBUG) Log.d(TAG, "registerViews mIsLoopMode:" + mIsLoopMode + "mMode:" + mMode);
 
             mPrimaryLayout = (LinearLayout) mSaverView.findViewById(R.id.primary_layout);
             mLocationLayout = (LinearLayout) mSaverView.findViewById(R.id.location_layout);
@@ -239,15 +237,15 @@ public class Utils {
             mLocationLayout.setVisibility(View.GONE);
             mStatusLayout.setVisibility(View.GONE);
             mCameraLayout.setVisibility(View.GONE);
-            // TODO: 2018-3-15 设置对应label显示
+
             updateLocationLayout();
             updateStatusLayout();
             updateCameraLayout();
-            // TODO: 2018-3-15
+
             if (mIsLoopMode) {
                 mMode = ++mMode % 3;
             }
-            Log.d(TAG, "========>mIsLoopMode:" + mIsLoopMode + "mMode:" + mMode);
+            if (DEBUG) Log.d(TAG, "updateScreensaverView mIsLoopMode:" + mIsLoopMode + "mMode:" + mMode);
             if (mMode == -1) {
                 mPrimaryLayout.setVisibility(View.GONE);
                 mUpdateSystemLayout.setVisibility(View.VISIBLE);
@@ -265,7 +263,7 @@ public class Utils {
                     mCameraLayout.setVisibility(View.VISIBLE);
                 }
             }
-            Log.d(TAG, "mMode:" + mMode);
+            if (DEBUG) Log.d(TAG, "updateScreensaverView mMode:" + mMode);
         }
 
         @Override
@@ -280,7 +278,7 @@ public class Utils {
 
             final float xrange = mContentView.getWidth() - mSaverView.getWidth();
             final float yrange = mContentView.getHeight() - mSaverView.getHeight();
-            Log.d(TAG, "mContentView Width:" + mContentView.getWidth() + " mContentView Height:" + mContentView.getHeight()
+            if (DEBUG) Log.d(TAG, "mContentView Width:" + mContentView.getWidth() + " mContentView Height:" + mContentView.getHeight()
                     + "\nmSaverView Width:" + mSaverView.getWidth() + " mSaverView Height:" + mSaverView.getHeight()
                     + "\nxrange:" + xrange + " yrange:" + yrange);
             if (hasAnimation()) {
@@ -458,13 +456,13 @@ public class Utils {
                     && networkInfo != null && networkInfo.isConnected() && networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
                 WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                 rssi = wifiInfo.getRssi();
-                Log.d(TAG, "rssi:" + rssi);
+                if (DEBUG) Log.d(TAG, "rssi:" + rssi);
                 if (rssi == Integer.MAX_VALUE) {
                     level = -1;
                 } else {
                     level = WifiManager.calculateSignalLevel(rssi, 4);
                 }
-                Log.d(TAG, "level:" + level);
+                if (DEBUG) Log.d(TAG, "level:" + level);
 
                 if (level == 0) {
                     mWifiStatus.setImageResource(R.drawable.wifi_signal_0);
@@ -574,7 +572,7 @@ public class Utils {
                 result = false;
                 break;
         }
-        Log.d(TAG, "ishasSimCard:" + (result ? "hasSimCard" : "noSimCard"));
+        if (DEBUG) Log.d(TAG, "ishasSimCard:" + (result ? "hasSimCard" : "noSimCard"));
         return result;
     }
 
@@ -626,9 +624,9 @@ public class Utils {
                 networkType = "WIFI";
             } else if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
                 String subTypeName = networkInfo.getSubtypeName();
-                Log.d(TAG, "Network getSubtypeName : " + subTypeName);
+                if (DEBUG) Log.d(TAG, "Network getSubtypeName : " + subTypeName);
                 int networkTypeID = networkInfo.getSubtype();
-                Log.d(TAG, "Network getSubtype : " + networkTypeID);
+                if (DEBUG) Log.d(TAG, "Network getSubtype : " + networkTypeID);
                 switch (networkTypeID) {
                     case TelephonyManager.NETWORK_TYPE_GPRS: // 1
                     case TelephonyManager.NETWORK_TYPE_EDGE: // 2
@@ -670,7 +668,7 @@ public class Utils {
                 }
             }
         }
-        Log.d(TAG, "Network Type : " + networkType);
+        if (DEBUG) Log.d(TAG, "Network Type : " + networkType);
         return networkType;
     }
 
@@ -681,7 +679,7 @@ public class Utils {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            Log.v(TAG, "ScreensaverReceiver onReceive, action: " + action);
+            if (DEBUG) Log.d(TAG, "ScreensaverReceiver onReceive, action: " + action);
 
             if (action == null) {
                 return;
@@ -691,7 +689,7 @@ public class Utils {
             if (action.equals("com.didi.recorder.action.SYNC_WEATHER")) {
                 imgUrl = intent.getStringExtra("imgUrl");
                 address = intent.getStringExtra("address");
-                Log.d(TAG, "imgUrl:" + imgUrl + "\naddress" + address);
+                if (DEBUG) Log.d(TAG, "imgUrl:" + imgUrl + "\naddress" + address);
                 if (!TextUtils.isEmpty(imgUrl)){
                     editor.putString(ScreensaverMoveSaverRunnable.IMAGE_URL, imgUrl);
                 }
@@ -703,7 +701,7 @@ public class Utils {
             if (action.equals("com.didi.recorder.action.SYNC_RECORDING_STATUS")) {
                 mainCameraStatus = intent.getExtras().getInt("KEY_CAMERA_0");
                 subCameraStatus = intent.getExtras().getInt("KEY_CAMERA_1");
-                Log.d(TAG, "mainCameraStatus:" + mainCameraStatus + " subCameraStatus" + subCameraStatus);
+                if (DEBUG) Log.d(TAG, "mainCameraStatus:" + mainCameraStatus + " subCameraStatus" + subCameraStatus);
                 editor.putInt(ScreensaverMoveSaverRunnable.MAIN_CAMERA_STATUS, mainCameraStatus);
                 editor.putInt(ScreensaverMoveSaverRunnable.SUB_CAMERA_STATUS, subCameraStatus);
             }
@@ -729,7 +727,7 @@ public class Utils {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            Log.d(TAG, "onSignalStrengthsChanged signalStrength=" + signalStrength +
+            if (DEBUG) Log.d(TAG, "onSignalStrengthsChanged signalStrength=" + signalStrength +
                     ((signalStrength == null) ? "" : (" level=" + level)));
             Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
             editor.putInt(ScreensaverMoveSaverRunnable.PHONE_SIGNAL_LEVEL, level);
