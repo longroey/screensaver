@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dc="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF000000"
+    android:orientation="vertical">
+    <!--  Extra layout to let the clock float in the window -->
+    <LinearLayout
+        android:id="@+id/screensaver_view"
+        android:layout_width="@dimen/screensaver_view_width"
+        android:layout_height="@dimen/screensaver_view_height"
+        android:layout_marginBottom="@dimen/screensaver_margin"
+        android:layout_marginEnd="@dimen/screensaver_margin"
+        android:layout_marginLeft="@dimen/screensaver_margin"
+        android:layout_marginRight="@dimen/screensaver_margin"
+        android:layout_marginStart="@dimen/screensaver_margin"
+        android:layout_marginTop="@dimen/screensaver_margin"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/primary_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right">
+
+            <ImageView
+                android:id="@+id/weather_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/weather_image_margin"
+                android:layout_gravity="bottom"
+                android:adjustViewBounds="true"
+                android:maxHeight="@dimen/weather_image_size"
+                android:maxWidth="@dimen/weather_image_size"
+                android:scaleType="fitCenter"
+                android:src="@drawable/weather"/>
+
+            <TextClock
+                android:id="@+id/clock"
+                style="@style/clock_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="@dimen/clock_margin_bottom"
+                android:ellipsize="none"
+                android:format12Hour="@string/main_clock_12_hours_format"
+                android:format24Hour="@string/clock_24_hours_format"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/location_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right|center_vertical">
+
+            <TextView
+                android:id="@+id/location_label"
+                style="@style/label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/default_location_label"/>
+
+            <ImageView
+                android:id="@+id/gps_status"
+                android:layout_width="66px"
+                android:layout_height="30px"
+                android:layout_marginLeft="@dimen/gps_status_margin_left"
+                android:gravity="center"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/status_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right|center_vertical"
+            android:visibility="gone">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right|center_vertical">
+                <ImageView
+                    android:id="@+id/network_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <ImageView
+                    android:id="@+id/network_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <ImageView
+                android:id="@+id/wifi_status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:scaleType="fitEnd"/>
+            <ImageView
+                android:id="@+id/hotspot_status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:scaleType="fitEnd"/>
+            <ImageView
+                android:id="@+id/mute_status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:scaleType="fitEnd"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/camera_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right|center_vertical"
+            android:visibility="gone">
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:scaleType="center"
+                    android:src="@drawable/main_camera_bg" />
+
+                <ImageView
+                    android:id="@+id/maincam_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleType="center"
+                    android:layout_gravity="center"
+                    android:src="@drawable/camera_recording" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/maincam_label"
+                style="@style/label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/maincam_label_margin_right"
+                android:layout_marginLeft="@dimen/maincam_label_margin_left"
+                android:gravity="center"
+                android:text="@string/maincam_label"/>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:scaleType="center"
+                    android:src="@drawable/sub_camera_bg" />
+
+                <ImageView
+                    android:id="@+id/subcam_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleType="center"
+                    android:layout_gravity="center"
+                    android:src="@drawable/camera_recording" />
+            </FrameLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/update_system_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/update_system_layout_margin_top"
+            android:gravity="right|center_vertical"
+            android:visibility="gone">
+            <ImageView
+                android:id="@+id/update_system_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/update_system_image_margin"
+                android:layout_gravity="bottom"
+                android:adjustViewBounds="true"
+                android:src="@drawable/update_system_image"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="bottom">
+                <TextView
+                    android:id="@+id/update_system_title"
+                    style="@style/update_title_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:text="@string/update_system_title"/>
+                <TextView
+                    android:id="@+id/update_system_summary"
+                    style="@style/update_summary_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:text="@string/update_system_summary"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</RelativeLayout>

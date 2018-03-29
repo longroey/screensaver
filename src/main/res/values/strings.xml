@@ -1,94 +1,48 @@
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
     <string name="app_label">Screensaver</string>
-    <!-- Label for the screen saver activity displayed on-screen when that activity must be represented to the user. -->
     <string name="screensaver_settings">Screensaver</string>
 
-    <!-- Header for a Screensaver Setting referring to choosing screensaver mode. -->
-    <string name="screensaver_mode">Mode</string>
+    <string name="main_clock_12_hours_format" translatable="false">h&#58;mm&#8202;<b><font size="20" face="sans-serif">a</font></b></string>
+    <string name="clock_24_hours_format" translatable="false">kk&#58;mm</string>
 
-    <!-- Entries listed in the ListPreference when invoking the screensaver mode preference. -->
+    <string name="screensaver_mode">Mode</string>
     <string-array name="screensaver_mode_entries">
-        <item>Time, Weather, Location</item>
-        <item>Time, Weather, Connection(WIFI, Hotspot, GPS)</item>
-        <item>Time, Weather, Camera status</item>
+        <item>System upgrade</item>
+        <item>Time, Weather, Location, GPS</item>
+        <item>Time, Connection(SIM status, WIFI, Hotspot, Mute)</item>
+        <item>Time, Camera status</item>
         <item>Loop</item>
     </string-array>
-
-    <!-- Values that are retrieved from the ListPreference. These must match the screensaver_mode_entries above. -->
     <string-array name="screensaver_mode_values" translatable="false">
+        <item>-1</item>
         <item>0</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>
     </string-array>
-
-    <!-- Default screensaver mode. -->
     <string name="default_screensaver_mode">3</string>
 
-
-
-
-
-
-    <!-- Font size for AM/PM should match bottom_text_size -->
-    <string name="main_clock_12_hours_format" translatable="false">h&#58;mm&#8202;<b><font size="20" face="sans-serif">a</font></b></string>
-    <!-- format strings for clocks -->
-    <string name="clock_24_hours_format" translatable="false">kk&#58;mm</string>
-    <!-- Label on the main screen control used to set alarm when there is already an existing alarm [CHAR LIMIT=30]-->
-    <string name="control_set_alarm_with_existing" translatable="false"><xliff:g id="time">%s</xliff:g></string>
-    <!-- Description of field showing the next alarm time in the clock page, for accessibility. -->
-    <string name="next_alarm_description">Next alarm: <xliff:g id="alarm_time" example="Wed 8:00am">%s</xliff:g></string>
-
-    <!-- String matching the lock screen format for displaying the date. -->
-    <string name="abbrev_wday_month_day_no_year" translatable="false">EEEMMMMd</string>
-    <!-- Format for describing the date, for accessibility. -->
-    <string name="full_wday_month_day_no_year" translatable="false">EEEEMMMMd</string>
-
-
-
-    <!-- Title for check box to pick intensity of display diminuation during dream mode -->
     <string name="night_mode_title">Night mode</string>
-    <!-- Describes intensity of display diminuation during dream mode -->
-    <string name="night_mode_summary">Very dim display (for dark rooms)</string>
+    <string name="night_mode_summary">Very dim display(in dim light)</string>
 
-
-    <!-- Title for check box to pick intensity of display date and alarm during dream mode -->
-    <string name="display_date_alarm_title">Display date and alarm</string>
-    <!-- Describes intensity of display date and alarm during dream mode -->
-    <string name="display_date_alarm_summary">Whether to display date and alarm(if it exists) during dream mode</string>
-
-
-    <!-- Header for a screensaver animation referring to choosing fade or slide style -->
     <string name="animation_style">Animation style</string>
-
-    <!-- Default animation style. -->
-    <string name="default_animation_style" translatable="false">fade</string>
-
-    <!-- Entries listed in the ListPreference when invoking the animation style
-     preference. -->
+    <string name="default_animation_style" translatable="false">none</string>
     <string-array name="animation_style_entries">
+        <item>None</item>
         <item>Fade</item>
         <item>Slide</item>
     </string-array>
-
-    <!-- Values that are retrieved from the ListPreference. These must match
-         the animation_style_entries above. -->
     <string-array name="animation_style_values" translatable="false">
+        <item>none</item>
         <item>fade</item>
         <item>slide</item>
     </string-array>
 
-    <!-- WiFi_signal strength -->
-    <string name="wifi_signal_strength_strong">Strong</string>
-    <string name="wifi_signal_strength_general">General</string>
-    <string name="wifi_signal_strength_weak">Weak</string>
+    <string name="default_location_label">Haiding district, Beijing</string>
+    <string name="maincam_label">Out of car image</string>
+    <string name="update_system_title">System upgrade notification</string>
+    <string name="update_system_summary">A new version will be automatically upgraded in 5 minutes</string>
 
-    <string name="connection_status_label">Wifi is <xliff:g id="wifi_status">%s</xliff:g>, Hotspot is <xliff:g id="wifi_ap_status">%s</xliff:g>, GPS is <xliff:g id="gps_status">%s</xliff:g></string>
-    <string name="status_on">on</string>
-    <string name="status_off">off</string>
-    <string name="mobilenetworktype">"\nMobile Network Type is "</string>
 
-    <string name="camera_status_label">Main camera is <xliff:g id="main_cmaera_status">%s</xliff:g>\nSub camera is <xliff:g id="sub_camera_status">%s</xliff:g></string>
-    <string name="camera_status_recording">recording</string>
-    <string name="camera_status_unrecording">unrecording</string>
+
 </resources>

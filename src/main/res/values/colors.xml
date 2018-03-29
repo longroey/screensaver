@@ -8,4 +8,7 @@
 
     <color name="dim_clock" >#40FFFFFF</color>
     <color name="bright_clock" >#C0FFFFFF</color>
+
+    <color name="update_summary_color" >#FFB2B2C2</color>
+
 </resources>

@@ -15,12 +15,6 @@
         android:summary="@string/night_mode_summary"
         android:title="@string/night_mode_title" />
 
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="display_date_alarm"
-        android:summary="@string/display_date_alarm_summary"
-        android:title="@string/display_date_alarm_title" />
-
     <ListPreference
         android:defaultValue="@string/default_animation_style"
         android:dialogTitle="@string/animation_style"
