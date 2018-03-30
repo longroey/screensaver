@@ -155,7 +155,7 @@ public class Utils {
             };
         }
         private boolean hasAnimation() {
-            String style = mSharedPref.getString(ScreensaverSettingsActivity.KEY_SCREENSAVER_ANIMATION_STYLE, "");
+            String style = mSharedPref.getString(ScreensaverSettingsActivity.KEY_SCREENSAVER_ANIMATION_STYLE, "none");
             if (!style.equals("none")) {
                 return true;
             }

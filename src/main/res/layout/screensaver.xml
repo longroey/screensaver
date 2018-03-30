@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#FF000000"
     android:orientation="vertical">
-    <!--  Extra layout to let the clock float in the window -->
+
     <LinearLayout
         android:id="@+id/screensaver_view"
         android:layout_width="@dimen/screensaver_view_width"
@@ -25,7 +25,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right">
-
             <ImageView
                 android:id="@+id/weather_image"
                 android:layout_width="wrap_content"
@@ -37,7 +36,6 @@
                 android:maxWidth="@dimen/weather_image_size"
                 android:scaleType="fitCenter"
                 android:src="@drawable/weather"/>
-
             <TextClock
                 android:id="@+id/clock"
                 style="@style/clock_style"
@@ -56,7 +54,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right|center_vertical">
-
             <TextView
                 android:id="@+id/location_label"
                 style="@style/label"
@@ -64,7 +61,6 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/default_location_label"/>
-
             <ImageView
                 android:id="@+id/gps_status"
                 android:layout_width="66px"
@@ -72,6 +68,7 @@
                 android:layout_marginLeft="@dimen/gps_status_margin_left"
                 android:gravity="center"/>
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/status_layout"
             android:layout_width="match_parent"
@@ -111,6 +108,7 @@
                 android:layout_weight="1"
                 android:scaleType="fitEnd"/>
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/camera_layout"
             android:layout_width="match_parent"
@@ -120,14 +118,12 @@
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
-
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:scaleType="center"
                     android:src="@drawable/main_camera_bg" />
-
                 <ImageView
                     android:id="@+id/maincam_status"
                     android:layout_width="wrap_content"
@@ -136,7 +132,6 @@
                     android:layout_gravity="center"
                     android:src="@drawable/camera_recording" />
             </FrameLayout>
-
             <TextView
                 android:id="@+id/maincam_label"
                 style="@style/label"
@@ -146,18 +141,15 @@
                 android:layout_marginLeft="@dimen/maincam_label_margin_left"
                 android:gravity="center"
                 android:text="@string/maincam_label"/>
-
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
-
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:scaleType="center"
                     android:src="@drawable/sub_camera_bg" />
-
                 <ImageView
                     android:id="@+id/subcam_status"
                     android:layout_width="wrap_content"
@@ -167,6 +159,7 @@
                     android:src="@drawable/camera_recording" />
             </FrameLayout>
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/update_system_layout"
             android:layout_width="match_parent"
@@ -203,6 +196,5 @@
                     android:text="@string/update_system_summary"/>
             </LinearLayout>
         </LinearLayout>
-
     </LinearLayout>
 </RelativeLayout>
