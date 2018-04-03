@@ -3,7 +3,6 @@ package com.rc.screensaver;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.TimeInterpolator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -115,8 +114,8 @@ public class Utils {
      */
     public static class ScreensaverMoveSaverRunnable implements Runnable {
         private final long MOVE_DELAY = 10 * 1000; // SCREEN_SAVER_MOVE_DELAY;
-        private final long SLIDE_TIME = 1 * 1000;
-        private final long FADE_TIME = 1 * 1000;
+        private final long SLIDE_TIME = 2 * 1000;
+        private final long FADE_TIME = 2 * 1000;
         private final String SCREENSAVER_MODE_UPDATE = "-1";
         private final String SCREENSAVER_MODE_LOCATION = "0";
         private final String SCREENSAVER_MODE_STATUS = "1";
@@ -141,18 +140,10 @@ public class Utils {
         private Typeface pingfangsc_regularTypeface, pingfangsc_semiboldTypeface, teko_regularTypeface;
         boolean mIsLoopMode;
         int mMode = 1;
-        private static TimeInterpolator mSlowStartWithBrakes;
 
         public ScreensaverMoveSaverRunnable(Context context, Handler handler) {
             mContext = context;
             mHandler = handler;
-
-            mSlowStartWithBrakes = new TimeInterpolator() {
-                @Override
-                public float getInterpolation(float x) {
-                    return (float) (Math.cos((Math.pow(x, 3) + 1) * Math.PI) / 2.0f) + 0.5f;
-                }
-            };
         }
         private boolean hasAnimation() {
             String style = mSharedPref.getString(ScreensaverSettingsActivity.KEY_SCREENSAVER_ANIMATION_STYLE, "none");
@@ -297,6 +288,7 @@ public class Utils {
                                 .start();
                     } else {
                         AnimatorSet s = new AnimatorSet();
+                        AnimatorSet e = new AnimatorSet();
                         Animator xMove = ObjectAnimator.ofFloat(mSaverView,
                                 "x", mSaverView.getX(), nextx);
                         Animator yMove = ObjectAnimator.ofFloat(mSaverView,
@@ -320,29 +312,35 @@ public class Utils {
                             AccelerateInterpolator accel = new AccelerateInterpolator();
                             DecelerateInterpolator decel = new DecelerateInterpolator();
 
-                            shrink.setDuration(FADE_TIME).setInterpolator(accel);
-                            fadeout.setDuration(FADE_TIME).setInterpolator(accel);
-                            grow.setDuration(FADE_TIME).setInterpolator(decel);
-                            fadein.setDuration(FADE_TIME).setInterpolator(decel);
+                            shrink.setDuration(FADE_TIME / 2).setInterpolator(accel);
+                            fadeout.setDuration(FADE_TIME / 2).setInterpolator(accel);
+                            grow.setDuration(FADE_TIME / 2).setInterpolator(decel);
+                            fadein.setDuration(FADE_TIME / 2).setInterpolator(decel);
                             s.play(shrink);
                             s.play(fadeout);
-                            s.play(xMove.setDuration(0)).after(FADE_TIME);
-                            s.play(yMove.setDuration(0)).after(FADE_TIME);
-                            s.play(fadein).after(FADE_TIME);
-                            s.play(grow).after(FADE_TIME);
+                            s.play(xMove.setDuration(0));
+                            s.play(yMove.setDuration(0));
+                            s.start();
+                            updateScreensaverView();
+                            e.play(fadein);
+                            e.play(grow);
+                            e.start();
                         } else {
                             s.play(xMove).with(yMove);
-                            s.setDuration(SLIDE_TIME);
+                            s.setDuration(SLIDE_TIME / 2);
                             s.play(shrink.setDuration(SLIDE_TIME / 2));
-                            s.play(grow.setDuration(SLIDE_TIME / 2)).after(shrink);
-                            s.setInterpolator(mSlowStartWithBrakes);
+                            s.start();
+                            updateScreensaverView();
+                            e.setDuration(SLIDE_TIME / 2);
+                            e.play(grow.setDuration(SLIDE_TIME / 2));
+                            e.start();
                         }
-                        s.start();
                     }
-
                 }
+            } else {
+                mSaverView.setAlpha(1);
+                updateScreensaverView();
             }
-            updateScreensaverView();
             mHandler.removeCallbacks(this);
             mHandler.postDelayed(this, delay);
         }
@@ -566,7 +564,7 @@ public class Utils {
         boolean result = true;
         switch (simState) {
             case TelephonyManager.SIM_STATE_ABSENT:
-                result = false; // 没有SIM卡
+                result = false; // no sim card
                 break;
             case TelephonyManager.SIM_STATE_UNKNOWN:
                 result = false;

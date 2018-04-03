@@ -109,7 +109,7 @@ public class Screensaver extends DreamService {
         Utils.dimClockView(this, dimNightMode, mSaverView);
         setScreenBright(!dimNightMode);
 
-        //mSaverView.setAlpha(0);
+        mSaverView.setAlpha(0);
         mMoveSaverRunnable.registerViews(mContentView, mSaverView);
     }
 
