@@ -20,7 +20,7 @@
         <item>2</item>
         <item>3</item>
     </string-array>
-    <string name="default_screensaver_mode">3</string>
+    <string name="default_screensaver_mode" translatable="false">3</string>
 
     <string name="night_mode_title">Night mode</string>
     <string name="night_mode_summary">Very dim display(in dim light)</string>

@@ -63,8 +63,8 @@
                 android:text="@string/default_location_label"/>
             <ImageView
                 android:id="@+id/gps_status"
-                android:layout_width="66px"
-                android:layout_height="30px"
+                android:layout_width="@dimen/gps_status_width"
+                android:layout_height="@dimen/gps_status_height"
                 android:layout_marginLeft="@dimen/gps_status_margin_left"
                 android:gravity="center"/>
         </LinearLayout>

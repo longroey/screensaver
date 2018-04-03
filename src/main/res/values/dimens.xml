@@ -15,6 +15,8 @@
     <dimen name="weather_image_size">128dp</dimen>
     <dimen name="weather_image_margin">16dp</dimen>
 
+    <dimen name="gps_status_width">66dp</dimen>
+    <dimen name="gps_status_height">30dp</dimen>
     <dimen name="gps_status_margin_left">64dp</dimen>
 
     <dimen name="maincam_label_margin_right">64dp</dimen>
