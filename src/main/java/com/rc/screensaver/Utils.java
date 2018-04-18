@@ -137,7 +137,7 @@ public class Utils {
         private static final String MAIN_CAMERA_STATUS = "main_camera_status";
         private static final String SUB_CAMERA_STATUS = "sub_camera_status";
 
-        private Typeface pingfangsc_regularTypeface, pingfangsc_semiboldTypeface, teko_regularTypeface;
+        private Typeface pingfangsc_regularTypeface, pingfangsc_mediumTypeface, teko_regularTypeface, teko_lightTypeface;
         boolean mIsLoopMode;
         int mMode = 1;
 
@@ -210,14 +210,21 @@ public class Utils {
             mUpdateSystemTitle = (TextView) mSaverView.findViewById(R.id.update_system_title);
             mUpdateSystemSummary = (TextView) mSaverView.findViewById(R.id.update_system_summary);
 
-            pingfangsc_regularTypeface = Typeface.createFromAsset(mContext.getAssets(),"PingFangSC-Regular.ttf");
-            pingfangsc_semiboldTypeface = Typeface.createFromAsset(mContext.getAssets(),"PingFangSC-SemiBold.ttf");
-            teko_regularTypeface = Typeface.createFromAsset(mContext.getAssets(),"Teko-Regular.ttf");
-            mClock.setTypeface(teko_regularTypeface);
+            //pingfangsc_regularTypeface = Typeface.createFromAsset(mContext.getAssets(),"PingFangSC-Regular.ttf");
+            //pingfangsc_mediumTypeface = Typeface.createFromAsset(mContext.getAssets(),"PingFangSC-Medium.ttf");
+            //teko_regularTypeface = Typeface.createFromAsset(mContext.getAssets(),"Teko-Regular.ttf");
+            //teko_lightTypeface = Typeface.createFromAsset(mContext.getAssets(),"Teko-Light.ttf");
+
+            pingfangsc_regularTypeface = Typeface.createFromFile("/system/fonts/PingFangSC-Regular.ttf");
+            pingfangsc_mediumTypeface = Typeface.createFromFile("/system/fonts/PingFangSC-Medium.ttf");
+            teko_regularTypeface = Typeface.createFromFile("/system/fonts/Teko-Regular.ttf");
+            teko_lightTypeface = Typeface.createFromFile("/system/fonts/Teko-Light.ttf");
+
+            mClock.setTypeface(teko_lightTypeface);
             Utils.setTimeFormat(mClock, (int)mContext.getResources().getDimension(R.dimen.ampm_font_size));
             mLocationLabel.setTypeface(pingfangsc_regularTypeface);
             mMaincamLabel.setTypeface(pingfangsc_regularTypeface);
-            mUpdateSystemTitle.setTypeface(pingfangsc_semiboldTypeface);
+            mUpdateSystemTitle.setTypeface(pingfangsc_mediumTypeface);
             mUpdateSystemSummary.setTypeface(pingfangsc_regularTypeface);
 
             updateScreensaverView();
@@ -236,7 +243,7 @@ public class Utils {
             if (mIsLoopMode) {
                 mMode = ++mMode % 3;
             }
-            if (DEBUG) Log.d(TAG, "updateScreensaverView mIsLoopMode:" + mIsLoopMode + "mMode:" + mMode);
+            if (DEBUG) Log.d(TAG, "updateScreensaverView mIsLoopMode:" + mIsLoopMode + " mMode:" + mMode);
             if (mMode == -1) {
                 mPrimaryLayout.setVisibility(View.GONE);
                 mUpdateSystemLayout.setVisibility(View.VISIBLE);

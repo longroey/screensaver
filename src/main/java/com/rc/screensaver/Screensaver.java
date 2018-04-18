@@ -1,15 +1,22 @@
 package com.rc.screensaver;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.location.LocationManager;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.service.dreams.DreamService;
 import android.telephony.TelephonyManager;
 import android.telephony.PhoneStateListener;
 import android.util.Log;
 import android.view.View;
+
+import com.didi.drivingrecorder.IDrService;
 
 import com.rc.screensaver.Utils.GpsStatusListener;
 import com.rc.screensaver.Utils.MobilePhoneStateListener;
@@ -22,7 +29,7 @@ public class Screensaver extends DreamService {
     private static final String TAG = "Screensaver";
 
 
-    public static final int DEFAULT_SCREENSAVER_TIMEOUT =  Integer.MAX_VALUE;// 5 * 60 * 1000;
+    public static final int DEFAULT_SCREENSAVER_TIMEOUT =  5 * 60 * 1000; // Integer.MAX_VALUE;
     public static final int ORIENTATION_CHANGE_DELAY_MS = 200;
 
     private TelephonyManager mTelephonyManager;
@@ -31,6 +38,9 @@ public class Screensaver extends DreamService {
     private GpsStatusListener mGpsStatusListener;
     private View mContentView, mSaverView;
 
+    private IDrService mDrService;
+    private boolean mScreensaverTimeout = false;
+
     private final Handler mHandler = new Handler();
 
     private final ScreensaverMoveSaverRunnable mMoveSaverRunnable;
@@ -38,6 +48,9 @@ public class Screensaver extends DreamService {
     private final Runnable mQuitScreensaver = new Runnable() {
         @Override
         public void run() {
+            if (DEBUG) Log.d(TAG, "Screensaver time out");
+            mScreensaverTimeout = true;
+            traceEventKV("mirror_recorder_homepage_sw", "num", "3");
             finish();
         }
     };
@@ -79,6 +92,9 @@ public class Screensaver extends DreamService {
         setInteractive(false);
         setFullscreen(true);
         layoutClockSaver();
+
+        bindService();
+
         mHandler.post(mMoveSaverRunnable);
         mHandler.postDelayed(mQuitScreensaver, DEFAULT_SCREENSAVER_TIMEOUT);
 
@@ -89,6 +105,8 @@ public class Screensaver extends DreamService {
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mListener = new MobilePhoneStateListener(this);
         mTelephonyManager.listen(mListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+        traceEvent("mirror_recorder_screensaver_sw");
+        traceEventKV("mirror_recorder_homepage_sw", "num", "2");
     }
 
     @Override
@@ -98,6 +116,11 @@ public class Screensaver extends DreamService {
         mHandler.removeCallbacks(mMoveSaverRunnable);
         mHandler.removeCallbacks(mQuitScreensaver);
         mTelephonyManager.listen(mListener, PhoneStateListener.LISTEN_NONE);
+        if (DEBUG) Log.d(TAG, "mScreensaverTimeout:" + mScreensaverTimeout);
+        if (!mScreensaverTimeout) {
+            traceEvent("mirror_recorder_screensaver_ck");
+        }
+        unbindService(connection);
     }
 
     private void layoutClockSaver() {
@@ -113,4 +136,59 @@ public class Screensaver extends DreamService {
         mMoveSaverRunnable.registerViews(mContentView, mSaverView);
     }
 
+    private void bindService(){
+        Intent intent = new Intent();
+        intent.setAction("com.didi.drivingrecorder.core.DrService");
+        intent.setPackage("com.didi.drivingrecorder");
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mDrService = IDrService.Stub.asInterface(service);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // 断开重新绑定
+            bindService();
+        }
+    };
+
+    /**
+     * 点击"埋点"
+     *
+     * @param eventId
+     */
+    public void traceEvent(String eventId){
+        if (mDrService == null) {
+            if (DEBUG) Log.d(TAG, "mDrService is null, traceEvent return");
+            return;
+        }
+        try {
+            mDrService.trackEvent(eventId);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 点击"埋点"
+     *
+     * @param eventId
+     * @param key
+     * @param value
+     */
+    public void traceEventKV(String eventId, String key, String value){
+        if (mDrService == null) {
+            if (DEBUG) Log.d(TAG, "mDrService is null, traceEventKV return");
+            return;
+        }
+        try {
+            mDrService.trackEventKV(eventId, key, value);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
 }
