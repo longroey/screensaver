@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="screensaver_view_width">400dp</dimen>
+    <dimen name="screensaver_view_width">360dp</dimen>
     <dimen name="screensaver_view_height">220dp</dimen>
     <dimen name="screensaver_margin">16dp</dimen>
-    <dimen name="clock_margin_bottom">-12dp</dimen>
-    <dimen name="clock_text_size">136sp</dimen>
-    <dimen name="label_font_size">30sp</dimen>
-    <dimen name="update_system_title_font_size">32sp</dimen>
+    <dimen name="clock_margin_bottom">-8dp</dimen>
+    <dimen name="clock_text_size">120sp</dimen>
+    <dimen name="location_label_font_size">26sp</dimen>
+    <dimen name="maincam_label_font_size">24sp</dimen>
+    <dimen name="update_system_title_font_size">26sp</dimen>
+    <dimen name="update_system_summary_font_size">22sp</dimen>
 
 
     <!-- M: To make the am/pm font size suit for phone.-->
     <dimen name="ampm_font_size">0sp</dimen>
 
-    <dimen name="weather_image_size">128dp</dimen>
-    <dimen name="weather_image_margin">16dp</dimen>
+    <dimen name="weather_image_size">144dp</dimen>
+    <dimen name="weather_image_margin">8dp</dimen>
 
     <dimen name="gps_status_width">66dp</dimen>
     <dimen name="gps_status_height">30dp</dimen>

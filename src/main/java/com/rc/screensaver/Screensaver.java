@@ -29,7 +29,7 @@ public class Screensaver extends DreamService {
     private static final String TAG = "Screensaver";
 
 
-    public static final int DEFAULT_SCREENSAVER_TIMEOUT =  5 * 60 * 1000; // Integer.MAX_VALUE;
+    public static final int DEFAULT_SCREENSAVER_TIMEOUT = 5 * 60 * 1000; //Integer.MAX_VALUE;
     public static final int ORIENTATION_CHANGE_DELAY_MS = 200;
 
     private TelephonyManager mTelephonyManager;
@@ -48,7 +48,7 @@ public class Screensaver extends DreamService {
     private final Runnable mQuitScreensaver = new Runnable() {
         @Override
         public void run() {
-            if (DEBUG) Log.d(TAG, "Screensaver time out");
+            if (DEBUG) Log.i(TAG, "Screensaver time out");
             mScreensaverTimeout = true;
             traceEventKV("mirror_recorder_homepage_sw", "num", "3");
             finish();
@@ -56,14 +56,14 @@ public class Screensaver extends DreamService {
     };
 
     public Screensaver() {
-        if (DEBUG) Log.d(TAG, "Screensaver allocated");
+        if (DEBUG) Log.i(TAG, "Screensaver allocated");
         mMoveSaverRunnable = new ScreensaverMoveSaverRunnable(this, mHandler);
 
     }
 
     @Override
     public void onCreate() {
-        if (DEBUG) Log.d(TAG, "Screensaver created");
+        if (DEBUG) Log.i(TAG, "Screensaver created");
         super.onCreate();
         setTheme(R.style.ScreensaverTheme);
     }
@@ -79,7 +79,7 @@ public class Screensaver extends DreamService {
 
     @Override
     public void onAttachedToWindow() {
-        if (DEBUG) Log.d(TAG, "Screensaver attached to window");
+        if (DEBUG) Log.i(TAG, "Screensaver attached to window");
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -91,9 +91,12 @@ public class Screensaver extends DreamService {
         super.onAttachedToWindow();
         setInteractive(false);
         setFullscreen(true);
-        layoutClockSaver();
 
         bindService();
+        traceEvent("mirror_recorder_screensaver_sw");
+        traceEventKV("mirror_recorder_homepage_sw", "num", "2");
+
+        layoutClockSaver();
 
         mHandler.post(mMoveSaverRunnable);
         mHandler.postDelayed(mQuitScreensaver, DEFAULT_SCREENSAVER_TIMEOUT);
@@ -105,13 +108,11 @@ public class Screensaver extends DreamService {
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mListener = new MobilePhoneStateListener(this);
         mTelephonyManager.listen(mListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-        traceEvent("mirror_recorder_screensaver_sw");
-        traceEventKV("mirror_recorder_homepage_sw", "num", "2");
     }
 
     @Override
     public void onDetachedFromWindow() {
-        if (DEBUG) Log.d(TAG, "Screensaver detached from window");
+        if (DEBUG) Log.i(TAG, "Screensaver detached from window");
         super.onDetachedFromWindow();
         mHandler.removeCallbacks(mMoveSaverRunnable);
         mHandler.removeCallbacks(mQuitScreensaver);

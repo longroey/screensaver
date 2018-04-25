@@ -210,15 +210,15 @@ public class Utils {
             mUpdateSystemTitle = (TextView) mSaverView.findViewById(R.id.update_system_title);
             mUpdateSystemSummary = (TextView) mSaverView.findViewById(R.id.update_system_summary);
 
-            //pingfangsc_regularTypeface = Typeface.createFromAsset(mContext.getAssets(),"PingFangSC-Regular.ttf");
-            //pingfangsc_mediumTypeface = Typeface.createFromAsset(mContext.getAssets(),"PingFangSC-Medium.ttf");
-            //teko_regularTypeface = Typeface.createFromAsset(mContext.getAssets(),"Teko-Regular.ttf");
-            //teko_lightTypeface = Typeface.createFromAsset(mContext.getAssets(),"Teko-Light.ttf");
+            pingfangsc_regularTypeface = Typeface.createFromAsset(mContext.getAssets(),"PingFangSC-Regular.ttf");
+            pingfangsc_mediumTypeface = Typeface.createFromAsset(mContext.getAssets(),"PingFangSC-Medium.ttf");
+            teko_regularTypeface = Typeface.createFromAsset(mContext.getAssets(),"Teko-Regular.ttf");
+            teko_lightTypeface = Typeface.createFromAsset(mContext.getAssets(),"Teko-Light.ttf");
 
-            pingfangsc_regularTypeface = Typeface.createFromFile("/system/fonts/PingFangSC-Regular.ttf");
-            pingfangsc_mediumTypeface = Typeface.createFromFile("/system/fonts/PingFangSC-Medium.ttf");
-            teko_regularTypeface = Typeface.createFromFile("/system/fonts/Teko-Regular.ttf");
-            teko_lightTypeface = Typeface.createFromFile("/system/fonts/Teko-Light.ttf");
+            //pingfangsc_regularTypeface = Typeface.createFromFile("/system/fonts/PingFangSC-Regular.ttf");
+            //pingfangsc_mediumTypeface = Typeface.createFromFile("/system/fonts/PingFangSC-Medium.ttf");
+            //teko_regularTypeface = Typeface.createFromFile("/system/fonts/Teko-Regular.ttf");
+            //teko_lightTypeface = Typeface.createFromFile("/system/fonts/Teko-Light.ttf");
 
             mClock.setTypeface(teko_lightTypeface);
             Utils.setTimeFormat(mClock, (int)mContext.getResources().getDimension(R.dimen.ampm_font_size));
@@ -231,7 +231,7 @@ public class Utils {
         }
 
         private void updateScreensaverView() {
-            mWeatherImg.setVisibility(View.GONE);
+            mWeatherImg.setVisibility(View.INVISIBLE);
             mLocationLayout.setVisibility(View.GONE);
             mStatusLayout.setVisibility(View.GONE);
             mCameraLayout.setVisibility(View.GONE);
@@ -291,7 +291,7 @@ public class Utils {
                         mSaverView.setX(nextx);
                         mSaverView.setY(nexty);
                         ObjectAnimator.ofFloat(mSaverView, "alpha", 0f, 1f)
-                                .setDuration(FADE_TIME)
+                                .setDuration(FADE_TIME / 2)
                                 .start();
                     } else {
                         AnimatorSet s = new AnimatorSet();

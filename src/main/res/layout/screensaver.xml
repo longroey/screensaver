@@ -56,7 +56,7 @@
             android:gravity="right|center_vertical">
             <TextView
                 android:id="@+id/location_label"
-                style="@style/label"
+                style="@style/location_label_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -75,6 +75,11 @@
             android:layout_height="wrap_content"
             android:gravity="right|center_vertical"
             android:visibility="gone">
+            <!-- <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:visibility="invisible"/> -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -134,7 +139,7 @@
             </FrameLayout>
             <TextView
                 android:id="@+id/maincam_label"
-                style="@style/label"
+                style="@style/maincam_label_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/maincam_label_margin_right"
