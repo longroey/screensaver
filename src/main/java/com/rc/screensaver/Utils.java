@@ -116,6 +116,8 @@ public class Utils {
         private final long MOVE_DELAY = 10 * 1000; // SCREEN_SAVER_MOVE_DELAY;
         private final long SLIDE_TIME = 2 * 1000;
         private final long FADE_TIME = 2 * 1000;
+        private final long DELAY = 1000;
+
         private final String SCREENSAVER_MODE_UPDATE = "-1";
         private final String SCREENSAVER_MODE_LOCATION = "0";
         private final String SCREENSAVER_MODE_STATUS = "1";
@@ -138,8 +140,9 @@ public class Utils {
         private static final String SUB_CAMERA_STATUS = "sub_camera_status";
 
         private Typeface pingfangsc_regularTypeface, pingfangsc_mediumTypeface, teko_regularTypeface, teko_lightTypeface;
-        boolean mIsLoopMode;
-        int mMode = 1;
+        private boolean mIsLoopMode, mShowNextMode, mNeedFlashCameraRecording;
+        private int mMode = 0, mCameraRecordingMode = 0;
+        private long mNextMoveTime = MOVE_DELAY;
 
         public ScreensaverMoveSaverRunnable(Context context, Handler handler) {
             mContext = context;
@@ -240,10 +243,12 @@ public class Utils {
             updateStatusLayout();
             updateCameraLayout();
 
-            if (mIsLoopMode) {
+            if (mIsLoopMode && mShowNextMode) {
                 mMode = ++mMode % 3;
             }
-            if (DEBUG) Log.d(TAG, "updateScreensaverView mIsLoopMode:" + mIsLoopMode + " mMode:" + mMode);
+            if (DEBUG) Log.d(TAG, "updateScreensaverView mIsLoopMode:" + mIsLoopMode + " mShowNextMode:" + mShowNextMode + " mMode:" + mMode);
+
+            mNeedFlashCameraRecording = false;
             if (mMode == -1) {
                 mPrimaryLayout.setVisibility(View.GONE);
                 mUpdateSystemLayout.setVisibility(View.VISIBLE);
@@ -259,6 +264,7 @@ public class Utils {
                 }
                 if (mMode == 2) {
                     mCameraLayout.setVisibility(View.VISIBLE);
+                    mNeedFlashCameraRecording = true;
                 }
             }
             if (DEBUG) Log.d(TAG, "updateScreensaverView mMode:" + mMode);
@@ -266,7 +272,7 @@ public class Utils {
 
         @Override
         public void run() {
-            long delay = MOVE_DELAY;
+            long delay = DELAY;
             boolean isFadeAnimation = isFadeAnimationStyle();
             if (mContentView == null || mSaverView == null) {
                 mHandler.removeCallbacks(this);
@@ -279,9 +285,9 @@ public class Utils {
             if (DEBUG) Log.d(TAG, "mContentView Width:" + mContentView.getWidth() + " mContentView Height:" + mContentView.getHeight()
                     + "\nmSaverView Width:" + mSaverView.getWidth() + " mSaverView Height:" + mSaverView.getHeight()
                     + "\nxrange:" + xrange + " yrange:" + yrange);
-            if (hasAnimation()) {
+            if (hasAnimation() && mShowNextMode) {
                 if (xrange == 0 && yrange == 0) {
-                    delay = 500; // back in a split second
+                    // back in a split second
                 } else {
                     final int nextx = (int) (Math.random() * xrange);
                     final int nexty = (int) (Math.random() * yrange);
@@ -350,6 +356,15 @@ public class Utils {
             }
             mHandler.removeCallbacks(this);
             mHandler.postDelayed(this, delay);
+            mNextMoveTime = mNextMoveTime - delay;
+            if (mNextMoveTime == 0) {
+                mNextMoveTime = MOVE_DELAY;
+                mShowNextMode = true;
+            } else {
+                mShowNextMode = false;
+            }
+            if (DEBUG) Log.d(TAG, "run delay:" + delay + " mNextMoveTime:" + mNextMoveTime + " mShowNextMode:" + mShowNextMode);
+
         }
 
         private void updateLocationLayout() {
@@ -387,21 +402,36 @@ public class Utils {
         private void updateCameraLayout() {
             int mainCameraStatus = mSharedPref.getInt(MAIN_CAMERA_STATUS, 0);
             int subCameraStatus = mSharedPref.getInt(SUB_CAMERA_STATUS, 0);
+            mMaincamStatus.setVisibility(View.GONE);
+            mSubcamStatus.setVisibility(View.GONE);
 
-            if (mainCameraStatus == 0) {
-                mMaincamStatus.setVisibility(View.GONE);
-            } else if (mainCameraStatus == 1) {
-                mMaincamStatus.setVisibility(View.VISIBLE);
-            } else if (mainCameraStatus == 2) {
-                // the status is reserve
-            }
+            if (DEBUG) Log.d(TAG, "mNeedFlashCameraRecording:" + mNeedFlashCameraRecording);
+            if (mNeedFlashCameraRecording) {
+                mCameraRecordingMode = ++mCameraRecordingMode % 2;
+                if (DEBUG) Log.d(TAG, "mCameraRecordingMode:" + mCameraRecordingMode);
+                if (mainCameraStatus == 0) {
+                    mMaincamStatus.setVisibility(View.GONE);
+                } else if (mainCameraStatus == 1) {
+                    if (mCameraRecordingMode == 0) {
+                        mMaincamStatus.setVisibility(View.GONE);
+                    } else {
+                        mMaincamStatus.setVisibility(View.VISIBLE);
+                    }
+                } else if (mainCameraStatus == 2) {
+                    // the status is reserve
+                }
 
-            if (subCameraStatus == 0) {
-                mSubcamStatus.setVisibility(View.GONE);
-            } else if (subCameraStatus == 1) {
-                mSubcamStatus.setVisibility(View.VISIBLE);
-            } else if (subCameraStatus == 2) {
-                // the status is reserve
+                if (subCameraStatus == 0) {
+                    mSubcamStatus.setVisibility(View.GONE);
+                } else if (subCameraStatus == 1) {
+                    if (mCameraRecordingMode == 0) {
+                        mSubcamStatus.setVisibility(View.GONE);
+                    } else {
+                        mSubcamStatus.setVisibility(View.VISIBLE);
+                    }
+                } else if (subCameraStatus == 2) {
+                    // the status is reserve
+                }
             }
         }
 
