@@ -734,8 +734,8 @@ public class Utils {
             }
 
             if (action.equals("com.didi.recorder.action.SYNC_RECORDING_STATUS")) {
-                mainCameraStatus = intent.getExtras().getInt("KEY_CAMERA_0");
-                subCameraStatus = intent.getExtras().getInt("KEY_CAMERA_1");
+                mainCameraStatus = intent.getExtras().getInt("CAMERA_0", 0);
+                subCameraStatus = intent.getExtras().getInt("CAMERA_1", 0);
                 if (DEBUG) Log.d(TAG, "mainCameraStatus:" + mainCameraStatus + " subCameraStatus" + subCameraStatus);
                 editor.putInt(ScreensaverMoveSaverRunnable.MAIN_CAMERA_STATUS, mainCameraStatus);
                 editor.putInt(ScreensaverMoveSaverRunnable.SUB_CAMERA_STATUS, subCameraStatus);

@@ -16,6 +16,7 @@ import android.telephony.PhoneStateListener;
 import android.util.Log;
 import android.view.View;
 
+import com.didi.drivingrecorder.ICloseCameraCallback;
 import com.didi.drivingrecorder.IDrService;
 
 import com.rc.screensaver.Utils.GpsStatusListener;
@@ -122,6 +123,7 @@ public class Screensaver extends DreamService {
             traceEvent("mirror_recorder_screensaver_ck");
         }
         unbindService(connection);
+        mDrService = null;
     }
 
     private void layoutClockSaver() {
@@ -153,6 +155,7 @@ public class Screensaver extends DreamService {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             // 断开重新绑定
+            mDrService = null;
             bindService();
         }
     };
@@ -188,6 +191,74 @@ public class Screensaver extends DreamService {
         }
         try {
             mDrService.trackEventKV(eventId, key, value);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 点击"关闭后置摄像头录制"
+     */
+    public void closeCamera(){
+        if (mDrService == null) {
+            if (DEBUG) Log.d(TAG, "mDrService is null, closeCamera return");
+            return;
+        }
+        try {
+            mDrService.closeCamera(new ICloseCameraCallback.Stub(){
+
+                @Override
+                public void onClosed() throws RemoteException {
+                    if (DEBUG) Log.d(TAG, "closeCamera: Main camera is closed");
+                }
+            });
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 点击"重启行车记录仪app"
+     */
+    public void reopenApp(){
+        if (mDrService == null) {
+            if (DEBUG) Log.d(TAG, "mDrService is null, reopenApp return");
+            return;
+        }
+        try {
+            mDrService.reopenApp();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 点击"前置摄像头是否正在录制"
+     */
+    public void isFrontCameraRecording(){
+        if (mDrService == null) {
+            if (DEBUG) Log.d(TAG, "mDrService is null, isFrontCameraRecording return");
+            return;
+        }
+        try {
+            boolean recording = mDrService.isFrontCameraRecording();
+            if (DEBUG) Log.d(TAG, "isFrontCameraRecording: " + (recording ? "Is recording" : "Not recording"));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 点击"后置摄像头是否正在录制"
+     */
+    public void isBackCameraRecording(){
+        if (mDrService == null) {
+            if (DEBUG) Log.d(TAG, "mDrService is null, isBackCameraRecording return");
+            return;
+        }
+        try {
+            boolean recording = mDrService.isBackCameraRecording();
+            if (DEBUG) Log.d(TAG, "isBackCameraRecording: " + (recording ? "Is recording" : "Not recording"));
         } catch (RemoteException e) {
             e.printStackTrace();
         }

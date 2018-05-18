@@ -15,6 +15,18 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/src']
+            //resources.srcDirs = ['src/main/src'] // <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+            aidl.srcDirs = ['src/main/src']
+            res.srcDirs = ['src/main/res']
+            assets.srcDirs = ['src/main/assets']
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
