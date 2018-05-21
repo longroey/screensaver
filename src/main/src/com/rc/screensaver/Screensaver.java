@@ -67,6 +67,7 @@ public class Screensaver extends DreamService {
         if (DEBUG) Log.i(TAG, "Screensaver created");
         super.onCreate();
         setTheme(R.style.ScreensaverTheme);
+        bindService();
     }
 
     @Override
@@ -93,7 +94,6 @@ public class Screensaver extends DreamService {
         setInteractive(false);
         setFullscreen(true);
 
-        bindService();
         traceEvent("mirror_recorder_screensaver_sw");
         traceEventKV("mirror_recorder_homepage_sw", "num", "2");
 
@@ -140,6 +140,7 @@ public class Screensaver extends DreamService {
     }
 
     private void bindService(){
+        if (DEBUG) Log.d(TAG, "bindService");
         Intent intent = new Intent();
         intent.setAction("com.didi.drivingrecorder.core.DrService");
         intent.setPackage("com.didi.drivingrecorder");
@@ -149,12 +150,13 @@ public class Screensaver extends DreamService {
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            if (DEBUG) Log.d(TAG, "onServiceConnected");
             mDrService = IDrService.Stub.asInterface(service);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            // 断开重新绑定
+            if (DEBUG) Log.d(TAG, "onServiceDisconnected");
             mDrService = null;
             bindService();
         }
@@ -170,6 +172,7 @@ public class Screensaver extends DreamService {
             if (DEBUG) Log.d(TAG, "mDrService is null, traceEvent return");
             return;
         }
+        if (DEBUG) Log.d(TAG, "traceEvent eventId:" + eventId);
         try {
             mDrService.trackEvent(eventId);
         } catch (RemoteException e) {
@@ -189,6 +192,7 @@ public class Screensaver extends DreamService {
             if (DEBUG) Log.d(TAG, "mDrService is null, traceEventKV return");
             return;
         }
+        if (DEBUG) Log.d(TAG, "traceEventKV eventId:" + eventId + " key:" + key + " value:" + value);
         try {
             mDrService.trackEventKV(eventId, key, value);
         } catch (RemoteException e) {
@@ -204,6 +208,7 @@ public class Screensaver extends DreamService {
             if (DEBUG) Log.d(TAG, "mDrService is null, closeCamera return");
             return;
         }
+        if (DEBUG) Log.d(TAG, "closeCamera");
         try {
             mDrService.closeCamera(new ICloseCameraCallback.Stub(){
 
@@ -225,6 +230,7 @@ public class Screensaver extends DreamService {
             if (DEBUG) Log.d(TAG, "mDrService is null, reopenApp return");
             return;
         }
+        if (DEBUG) Log.d(TAG, "reopenApp");
         try {
             mDrService.reopenApp();
         } catch (RemoteException e) {
@@ -240,6 +246,7 @@ public class Screensaver extends DreamService {
             if (DEBUG) Log.d(TAG, "mDrService is null, isFrontCameraRecording return");
             return;
         }
+        if (DEBUG) Log.d(TAG, "isFrontCameraRecording");
         try {
             boolean recording = mDrService.isFrontCameraRecording();
             if (DEBUG) Log.d(TAG, "isFrontCameraRecording: " + (recording ? "Is recording" : "Not recording"));
@@ -256,6 +263,7 @@ public class Screensaver extends DreamService {
             if (DEBUG) Log.d(TAG, "mDrService is null, isBackCameraRecording return");
             return;
         }
+        if (DEBUG) Log.d(TAG, "isBackCameraRecording");
         try {
             boolean recording = mDrService.isBackCameraRecording();
             if (DEBUG) Log.d(TAG, "isBackCameraRecording: " + (recording ? "Is recording" : "Not recording"));
