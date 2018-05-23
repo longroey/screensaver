@@ -140,7 +140,7 @@ public class Utils {
         private static final String SUB_CAMERA_STATUS = "sub_camera_status";
 
         private Typeface pingfangsc_regularTypeface, pingfangsc_mediumTypeface, teko_regularTypeface, teko_lightTypeface;
-        private boolean mIsLoopMode, mShowNextMode, mNeedFlashCameraRecording;
+        private boolean mIsLoopMode, mShowNextMode;
         private int mMode = 0, mCameraRecordingMode = 0;
         private long mNextMoveTime = MOVE_DELAY;
 
@@ -157,7 +157,7 @@ public class Utils {
         }
 
         private boolean isFadeAnimationStyle() {
-            String style = mSharedPref.getString(ScreensaverSettingsActivity.KEY_SCREENSAVER_ANIMATION_STYLE, "");
+            String style = mSharedPref.getString(ScreensaverSettingsActivity.KEY_SCREENSAVER_ANIMATION_STYLE, "none");
             if (style.equals("fade")) {
                 return true;
             }
@@ -186,7 +186,7 @@ public class Utils {
                     mMode = 2;
                 }
             }
-            if (DEBUG) Log.d(TAG, "registerViews mIsLoopMode:" + mIsLoopMode + "mMode:" + mMode);
+            if (DEBUG) Log.d(TAG, "registerViews mIsLoopMode:" + mIsLoopMode + " mMode:" + mMode);
 
             mPrimaryLayout = (LinearLayout) mSaverView.findViewById(R.id.primary_layout);
             mLocationLayout = (LinearLayout) mSaverView.findViewById(R.id.location_layout);
@@ -239,16 +239,11 @@ public class Utils {
             mStatusLayout.setVisibility(View.GONE);
             mCameraLayout.setVisibility(View.GONE);
 
-            updateLocationLayout();
-            updateStatusLayout();
-            updateCameraLayout();
-
             if (mIsLoopMode && mShowNextMode) {
                 mMode = ++mMode % 3;
             }
             if (DEBUG) Log.d(TAG, "updateScreensaverView mIsLoopMode:" + mIsLoopMode + " mShowNextMode:" + mShowNextMode + " mMode:" + mMode);
 
-            mNeedFlashCameraRecording = false;
             if (mMode == -1) {
                 mPrimaryLayout.setVisibility(View.GONE);
                 mUpdateSystemLayout.setVisibility(View.VISIBLE);
@@ -256,15 +251,17 @@ public class Utils {
                 mPrimaryLayout.setVisibility(View.VISIBLE);
                 mUpdateSystemLayout.setVisibility(View.GONE);
                 if (mMode == 0) {
+                    updateLocationLayout();
                     mWeatherImg.setVisibility(View.VISIBLE);
                     mLocationLayout.setVisibility(View.VISIBLE);
                 }
                 if (mMode == 1) {
+                    updateStatusLayout();
                     mStatusLayout.setVisibility(View.VISIBLE);
                 }
                 if (mMode == 2) {
+                    updateCameraLayout();
                     mCameraLayout.setVisibility(View.VISIBLE);
-                    mNeedFlashCameraRecording = true;
                 }
             }
             if (DEBUG) Log.d(TAG, "updateScreensaverView mMode:" + mMode);
@@ -402,36 +399,31 @@ public class Utils {
         private void updateCameraLayout() {
             int mainCameraStatus = mSharedPref.getInt(MAIN_CAMERA_STATUS, 0);
             int subCameraStatus = mSharedPref.getInt(SUB_CAMERA_STATUS, 0);
-            mMaincamStatus.setVisibility(View.GONE);
-            mSubcamStatus.setVisibility(View.GONE);
 
-            if (DEBUG) Log.d(TAG, "mNeedFlashCameraRecording:" + mNeedFlashCameraRecording);
-            if (mNeedFlashCameraRecording) {
-                mCameraRecordingMode = ++mCameraRecordingMode % 2;
-                if (DEBUG) Log.d(TAG, "mCameraRecordingMode:" + mCameraRecordingMode);
-                if (mainCameraStatus == 0) {
+            mCameraRecordingMode = ++mCameraRecordingMode % 2;
+            if (DEBUG) Log.d(TAG, "mCameraRecordingMode:" + mCameraRecordingMode);
+            if (mainCameraStatus == 0) {
+                mMaincamStatus.setVisibility(View.GONE);
+            } else if (mainCameraStatus == 1) {
+                if (mCameraRecordingMode == 0) {
                     mMaincamStatus.setVisibility(View.GONE);
-                } else if (mainCameraStatus == 1) {
-                    if (mCameraRecordingMode == 0) {
-                        mMaincamStatus.setVisibility(View.GONE);
-                    } else {
-                        mMaincamStatus.setVisibility(View.VISIBLE);
-                    }
-                } else if (mainCameraStatus == 2) {
-                    // the status is reserve
+                } else {
+                    mMaincamStatus.setVisibility(View.VISIBLE);
                 }
+            } else if (mainCameraStatus == 2) {
+                // the status is reserve
+            }
 
-                if (subCameraStatus == 0) {
+            if (subCameraStatus == 0) {
+                mSubcamStatus.setVisibility(View.GONE);
+            } else if (subCameraStatus == 1) {
+                if (mCameraRecordingMode == 0) {
                     mSubcamStatus.setVisibility(View.GONE);
-                } else if (subCameraStatus == 1) {
-                    if (mCameraRecordingMode == 0) {
-                        mSubcamStatus.setVisibility(View.GONE);
-                    } else {
-                        mSubcamStatus.setVisibility(View.VISIBLE);
-                    }
-                } else if (subCameraStatus == 2) {
-                    // the status is reserve
+                } else {
+                    mSubcamStatus.setVisibility(View.VISIBLE);
                 }
+            } else if (subCameraStatus == 2) {
+                // the status is reserve
             }
         }
 
@@ -451,7 +443,7 @@ public class Utils {
         }
 
         private void updatePhoneSignal() {
-            if (!ishasSimCard(mContext)) {
+            if (!hasSimCard(mContext)) {
                 mNetworkStatus.setImageResource(R.drawable.network_signal_no_sim);
                 mNetworkType.setVisibility(View.GONE);
             } else {
@@ -595,7 +587,7 @@ public class Utils {
         return wifiApSSID;
     }
 
-    public static boolean ishasSimCard(Context context) {
+    public static boolean hasSimCard(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         int simState = telephonyManager.getSimState();
         boolean result = true;
@@ -607,7 +599,7 @@ public class Utils {
                 result = false;
                 break;
         }
-        if (DEBUG) Log.d(TAG, "ishasSimCard:" + (result ? "hasSimCard" : "noSimCard"));
+        if (DEBUG) Log.d(TAG, "hasSimCard:" + (result ? "hasSimCard" : "noSimCard"));
         return result;
     }
 

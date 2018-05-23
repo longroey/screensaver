@@ -94,9 +94,6 @@ public class Screensaver extends DreamService {
         setInteractive(false);
         setFullscreen(true);
 
-        traceEvent("mirror_recorder_screensaver_sw");
-        traceEventKV("mirror_recorder_homepage_sw", "num", "2");
-
         layoutClockSaver();
 
         mHandler.post(mMoveSaverRunnable);
@@ -109,6 +106,9 @@ public class Screensaver extends DreamService {
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mListener = new MobilePhoneStateListener(this);
         mTelephonyManager.listen(mListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+
+        traceEvent("mirror_recorder_screensaver_sw");
+        traceEventKV("mirror_recorder_homepage_sw", "num", "2");
     }
 
     @Override
@@ -122,11 +122,18 @@ public class Screensaver extends DreamService {
         if (!mScreensaverTimeout) {
             traceEvent("mirror_recorder_screensaver_ck");
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (DEBUG) Log.i(TAG, "Screensaver destroyed");
+        super.onDestroy();
         unbindService(connection);
         mDrService = null;
     }
 
     private void layoutClockSaver() {
+        if (DEBUG) Log.d(TAG, "layoutClockSaver");
         setContentView(R.layout.screensaver);
         mSaverView = findViewById(R.id.screensaver_view);
         mContentView = (View) mSaverView.getParent();
