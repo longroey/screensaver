@@ -38,8 +38,8 @@
         <item>slide</item>
     </string-array>
 
-    <string name="default_location_label">Haiding district, Beijing</string>
-    <string name="maincam_label">Out of car image</string>
+    <string name="default_location_label">Location positioning</string>
+    <string name="maincam_label">Out of car images</string>
     <string name="update_system_title">System upgrade notification</string>
     <string name="update_system_summary">A new version will be automatically upgraded in 5 minutes</string>
 

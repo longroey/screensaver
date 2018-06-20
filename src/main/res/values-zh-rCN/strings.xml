@@ -21,7 +21,7 @@
         <item>滑动</item>
     </string-array>
 
-    <string name="default_location_label">北京市 海淀区</string>
+    <string name="default_location_label">所在位置 定位中</string>
     <string name="maincam_label">车外影像</string>
     <string name="update_system_title">系统升级通知</string>
     <string name="update_system_summary">有新版本，5分钟后将自动升级</string>

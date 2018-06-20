@@ -26,6 +26,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Handler;
+//import android.os.SystemProperties;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
@@ -61,7 +62,7 @@ import java.util.Locale;
 
 public class Utils {
     private static String TAG = "Utils";
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = true; // SystemProperties.getBoolean("debug.screensaver", false);
 
     public static void setTimeFormat(TextClock clock, int amPmFontSize) {
         if (clock != null) {
@@ -384,9 +385,9 @@ public class Utils {
             if (isHotspotOn(mContext)) {
                 mHotspotStatus.setImageResource(R.drawable.hotspot);
             } else {
-                //mHotspotStatus.setVisibility(View.GONE);
-                mHotspotStatus.setImageResource(R.drawable.hotspot);
-                mHotspotStatus.setAlpha(0.3f);
+                //mHotspotStatus.setImageResource(R.drawable.hotspot);
+                //mHotspotStatus.setAlpha(0.3f);
+                mHotspotStatus.setVisibility(View.GONE);
             }
 
             if (isMute(mContext)) {
@@ -430,8 +431,9 @@ public class Utils {
 
         private void updateGpsStatus() {
             if (!isGPSOn(mContext)){
-                mGpsStatus.setImageResource(R.drawable.location_signal);
-                mGpsStatus.setAlpha(0.3f);
+                //mGpsStatus.setImageResource(R.drawable.location_signal);
+                //mGpsStatus.setAlpha(0.3f);
+                mGpsStatus.setVisibility(View.GONE);
             } else {
                 int satellitesCount = mSharedPref.getInt(SATELLITES_COUNT, 0);
                 if (satellitesCount > 10) {
@@ -501,9 +503,9 @@ public class Utils {
                     mWifiStatus.setImageResource(R.drawable.wifi_signal_3);
                 }
             } else {
-                //mWifiStatus.setVisibility(View.GONE);
-                mWifiStatus.setImageResource(R.drawable.wifi_signal_3);
-                mWifiStatus.setAlpha(0.3f);
+                //mWifiStatus.setImageResource(R.drawable.wifi_signal_3);
+                //mWifiStatus.setAlpha(0.3f);
+                mWifiStatus.setVisibility(View.GONE);
             }
         }
 

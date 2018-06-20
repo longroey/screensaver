@@ -34,8 +34,8 @@
                 android:adjustViewBounds="true"
                 android:maxHeight="@dimen/weather_image_size"
                 android:maxWidth="@dimen/weather_image_size"
-                android:scaleType="fitCenter"
-                android:src="@drawable/weather"/>
+                android:scaleType="fitCenter"/>
+                <!--android:src="@drawable/weather"/> -->
             <TextClock
                 android:id="@+id/clock"
                 style="@style/clock_style"
@@ -75,15 +75,9 @@
             android:layout_height="wrap_content"
             android:gravity="right|center_vertical"
             android:visibility="gone">
-            <!-- <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:visibility="invisible"/> -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="right|center_vertical">
                 <ImageView
                     android:id="@+id/network_status"
@@ -96,21 +90,21 @@
             </LinearLayout>
             <ImageView
                 android:id="@+id/wifi_status"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/status_item_margin_left"
                 android:scaleType="fitEnd"/>
             <ImageView
                 android:id="@+id/hotspot_status"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/status_item_margin_left"
                 android:scaleType="fitEnd"/>
             <ImageView
                 android:id="@+id/mute_status"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/status_item_margin_left"
                 android:scaleType="fitEnd"/>
         </LinearLayout>
 
