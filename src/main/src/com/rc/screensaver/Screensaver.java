@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.service.dreams.DreamService;
@@ -18,6 +19,10 @@ import android.view.View;
 
 import com.didi.drivingrecorder.ICloseCameraCallback;
 import com.didi.drivingrecorder.IDrService;
+import com.didi.drivingrecorder.fota.ICountDownCallback;
+import com.didi.drivingrecorder.fota.IDidiFotaService;
+import com.didi.drivingrecorder.fota.IFetchUpdateInfoCallBack;
+import com.didi.drivingrecorder.fota.UpdateInfo;
 
 import com.rc.screensaver.Utils.GpsStatusListener;
 import com.rc.screensaver.Utils.MobilePhoneStateListener;
@@ -40,9 +45,26 @@ public class Screensaver extends DreamService {
     private View mContentView, mSaverView;
 
     private IDrService mDrService;
+    private IDidiFotaService didiFotaService;
     private boolean mScreensaverTimeout = false;
 
-    private final Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 1) {
+                Long leftTime = (Long) msg.obj;
+                // 秒
+                long s = leftTime / 1000 % 60;
+                // 分
+                long m = leftTime / 1000 / 60;
+                if (DEBUG) Log.d(TAG, "升级倒计时:" + m + "分" + s + "秒");
+            } else if (msg.what == 2) {
+                UpdateInfo updateInfo = (UpdateInfo) msg.obj;
+                if (DEBUG) Log.d(TAG, "更新包获取结果:" + updateInfo);
+            }
+        }
+    };
 
     private final ScreensaverMoveSaverRunnable mMoveSaverRunnable;
 
@@ -68,6 +90,7 @@ public class Screensaver extends DreamService {
         super.onCreate();
         setTheme(R.style.ScreensaverTheme);
         bindService();
+        bindFotaService();
     }
 
     @Override
@@ -130,6 +153,9 @@ public class Screensaver extends DreamService {
         super.onDestroy();
         unbindService(connection);
         mDrService = null;
+
+        unregisterUpdateCountDownCallback();
+        unbindService(fotaConnection);
     }
 
     private void layoutClockSaver() {
@@ -278,4 +304,85 @@ public class Screensaver extends DreamService {
             e.printStackTrace();
         }
     }
+
+
+    private void bindFotaService(){
+        Intent intent = new Intent();
+        intent.setAction("com.didi.drivingrecorder.fota.service.FotaService");
+        intent.setPackage("com.didi.drivingrecorder.fota");
+        bindService(intent, fotaConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private ServiceConnection fotaConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            if (DEBUG) Log.d(TAG, "fotaConnection onServiceConnected");
+            didiFotaService = IDidiFotaService.Stub.asInterface(service);
+            registerUpdateCountDownCallback();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            if (DEBUG) Log.d(TAG, "fotaConnection onServiceDisconnected");
+            didiFotaService = null;
+            bindFotaService();
+        }
+    };
+
+    private void registerUpdateCountDownCallback() {
+        if (didiFotaService != null) {
+            try {
+                // AIDL接口：注册开始升级倒计时回调
+                didiFotaService.registerUpdateCountDownCallback(countDownCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    private void unregisterUpdateCountDownCallback() {
+        if (didiFotaService != null) {
+            try {
+                // AIDL接口：注销开始升级倒计时回调
+                didiFotaService.unregisterUpdateCountDownCallback(countDownCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        didiFotaService = null;
+    }
+
+    private ICountDownCallback countDownCallback = new ICountDownCallback.Stub() {
+        @Override
+        public void onCountDown(long timeLeft) throws RemoteException {
+
+            Message message = Message.obtain();
+            message.what = 1;
+            message.obj = timeLeft;
+            mHandler.sendMessage(message);
+        }
+    };
+
+    public void fetchUpdateInfo() {
+        if (didiFotaService != null) {
+            try {
+                //updateinfoTv.setText("更新包获取中...");
+
+                // AIDL接口：获取升级包信息
+                didiFotaService.fetchUpdateInfo(new IFetchUpdateInfoCallBack.Stub() {
+                    @Override
+                    public void onCallBack(UpdateInfo updateInfo) throws RemoteException {
+                        Message message = Message.obtain();
+                        message.what = 2;
+                        message.obj = updateInfo;
+                        mHandler.sendMessage(message);
+                    }
+                });
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
